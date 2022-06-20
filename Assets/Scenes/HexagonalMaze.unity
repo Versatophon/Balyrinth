@@ -455,12 +455,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Shape: 1
-  m_NumberOfColumns: 30
-  m_NumberOfRows: 30
+  m_NumberOfColumns: 50
+  m_NumberOfRows: 28
   m_ProgressiveGeneration: 1
-  m_AlgorithmIndex: 0
+  m_AlgorithmIndex: 1
   m_AlgorithmCorridorPseudoLength: 200
-  m_NumberOfConnectionsPerSeconds: 200
+  m_NumberOfConnectionsPerSeconds: 60
   m_RoomPrefab: {fileID: 8137593934016169205, guid: 4846e1135283bf74b898928c6d2cafb2, type: 3}
   m_RTCam: {fileID: 570380134}
 --- !u!1 &1671086934
