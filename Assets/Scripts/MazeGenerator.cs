@@ -3,6 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+using UnityEngine;
+
 public class MazeGenerator
 {
 
@@ -15,7 +17,7 @@ public class MazeGenerator
         Last,
     }
 
-    Random mRandomGenerator = new Random();
+    System.Random mRandomGenerator = new System.Random();
 
     int mCurrentColor = 0;
 
@@ -61,6 +63,8 @@ public class MazeGenerator
         while (pNodeIndex1 == -1)
         {
             mPotentialConnections.Clear();
+
+            Debug.Log("Connectables Count " + mStillConnectablesNodes.Count);
 
             int lIndex = mRandomGenerator.Next(mStillConnectablesNodes.Count);
 

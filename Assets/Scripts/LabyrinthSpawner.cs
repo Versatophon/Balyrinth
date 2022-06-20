@@ -45,8 +45,8 @@ public class LabyrinthSpawner : MonoBehaviour
 
     //public List<> m_PotentialConnections;
 
-    RoomConnectionsBehaviour m_Room1;
-    RoomConnectionsBehaviour m_Room2;
+    GameObject m_Room1;
+    GameObject m_Room2;
 
 
     bool mNeedToCompute = true;
@@ -54,7 +54,21 @@ public class LabyrinthSpawner : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        mInternalRepresentation = SquareShapeGenerator.generate(m_NumberOfColumns, m_NumberOfRows);
+        switch (m_Shape)
+        {
+            case LabyShape.Rectangle:
+                mInternalRepresentation = SquareShapeGenerator.generate(m_NumberOfColumns, m_NumberOfRows);
+                break;
+            case LabyShape.HoneyComb:
+                mInternalRepresentation = HoneycombShapeGenerator.generate(m_NumberOfColumns, m_NumberOfRows);
+                break;
+            case LabyShape.Sphere:
+                break;
+            case LabyShape.Torus:
+                break;
+        }
+
+       
         mMazeGenerator = new MazeGenerator(mInternalRepresentation);
 
 
@@ -62,15 +76,20 @@ public class LabyrinthSpawner : MonoBehaviour
         mMazeScale.x = 3.56f / (m_NumberOfColumns*2);//x2 because the prefab is 2 units width
         mMazeScale.z = 2f / (m_NumberOfRows*2);//x2 because the prefab is 2 units width
 
-
-        
+        mMazeScale.x = 3.56f / (m_NumberOfColumns*1.78f);//x2 because the prefab is 2 units width
+        mMazeScale.z = 2f / (m_NumberOfRows*1.5f);//x2 because the prefab is 2 units width
 
         //mMazeScale.y = 1f;
 
         mMazeScale.x = mMazeScale.y = mMazeScale.z = Mathf.Min(mMazeScale.x, mMazeScale.z);
 
+        //For Rectangular Shape
         mMazeOffset.x = - (0.5f * m_NumberOfColumns - 0.5f) * mMazeScale.x;
         mMazeOffset.z = - (0.5f * m_NumberOfRows - 0.5f) * mMazeScale.z;
+
+        //Hexa Shape
+        mMazeOffset.x = - (0.5f * (m_NumberOfColumns-1) ) * mMazeScale.x;
+        mMazeOffset.z = - (0.5f * (m_NumberOfRows-1) ) * mMazeScale.z;
         mMazeOffset.y = 0;
 
 
@@ -84,10 +103,10 @@ public class LabyrinthSpawner : MonoBehaviour
 
         m_Room1 = GameObject.Instantiate(m_RoomPrefab,
                     transform.TransformPoint(new Vector3(-10, -10, 0)),
-                    Quaternion.identity, transform).GetComponent<RoomConnectionsBehaviour>();
+                    Quaternion.identity, transform);//.GetComponent<RoomConnectionsBehaviour>();
         m_Room2 = GameObject.Instantiate(m_RoomPrefab,
                     transform.TransformPoint(new Vector3(-10, -10, 0)),
-                    Quaternion.identity, transform).GetComponent<RoomConnectionsBehaviour>();
+                    Quaternion.identity, transform);//.GetComponent<RoomConnectionsBehaviour>();
         //lRoom.name = "Room (" + i + ";" + j + ")";
 
 #if false
@@ -164,38 +183,105 @@ public class LabyrinthSpawner : MonoBehaviour
     }
 #endif
 
-    void updateRoomVisibility(int pRoomIndex, RoomConnectionsBehaviour pRoom)
+    void updateRoomVisibility(int pRoomIndex, GameObject pRoom)
     {
-        pRoom.resetVisibility();
-        Node lNode = mInternalRepresentation.mNodes[pRoomIndex];
-
-        pRoom.transform.position = transform.TransformPoint(new Vector3(2 * (pRoomIndex%m_NumberOfColumns), 0, 2 * (pRoomIndex/m_NumberOfColumns)));
 
 
-        foreach (Node lNeighbourNode in lNode.mConnectedNeighbours)
+        
+
+        switch (m_Shape)
         {
-            if (pRoomIndex == (lNeighbourNode.mIndex - 1))
-            {
-                pRoom.m_ConnectedFromEast = true;
-            }
+            case LabyShape.Rectangle:
+                {
+                    RoomConnectionsBehaviour lRoom = pRoom.GetComponent<RoomConnectionsBehaviour>();
+                    lRoom.resetVisibility();
+                    Node lNode = mInternalRepresentation.mNodes[pRoomIndex];
+                    lRoom.transform.position = transform.TransformPoint(new Vector3(2 * (pRoomIndex % m_NumberOfColumns), 0, 2 * (pRoomIndex / m_NumberOfColumns)));
 
-            if (pRoomIndex == (lNeighbourNode.mIndex + 1))
-            {
-                pRoom.m_ConnectedFromWest = true;
-            }
 
-            if (pRoomIndex == (lNeighbourNode.mIndex + m_NumberOfColumns))
-            {
-                pRoom.m_ConnectedFromSouth = true;
-            }
+                    foreach (Node lNeighbourNode in lNode.mConnectedNeighbours)
+                    {
+                        if (pRoomIndex == (lNeighbourNode.mIndex - 1))
+                        {
+                            lRoom.m_ConnectedFromEast = true;
+                        }
 
-            if (pRoomIndex == (lNeighbourNode.mIndex - m_NumberOfColumns))
-            {
-                pRoom.m_ConnectedFromNorth = true;
-            }
+                        if (pRoomIndex == (lNeighbourNode.mIndex + 1))
+                        {
+                            lRoom.m_ConnectedFromWest = true;
+                        }
+
+                        if (pRoomIndex == (lNeighbourNode.mIndex + m_NumberOfColumns))
+                        {
+                            lRoom.m_ConnectedFromSouth = true;
+                        }
+
+                        if (pRoomIndex == (lNeighbourNode.mIndex - m_NumberOfColumns))
+                        {
+                            lRoom.m_ConnectedFromNorth = true;
+                        }
+                    }
+                    lRoom.Updatevisibility();
+                }
+                break;
+            case LabyShape.HoneyComb:
+                {
+                    HexaRoomConnectionsBehaviour lRoom = pRoom.GetComponent<HexaRoomConnectionsBehaviour>();
+                    lRoom.resetVisibility();
+                    Node lNode = mInternalRepresentation.mNodes[pRoomIndex];
+
+                    lRoom.transform.position = transform.TransformPoint(new Vector3(1.7f * ((pRoomIndex % m_NumberOfColumns) + ((pRoomIndex / m_NumberOfColumns)%2 == 0 ? 0:0.5f)), 0, 1.48f * (pRoomIndex / m_NumberOfColumns)));
+
+                    
+
+                    foreach (Node lNeighbourNode in lNode.mConnectedNeighbours)
+                    {
+                        int lFirstRoomIndex = pRoomIndex; 
+                        int lSecondRoomIndex = lNeighbourNode.mIndex;
+
+                        if (lSecondRoomIndex == HoneycombShapeGenerator.getEast(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
+                        {
+                            lRoom.m_ConnectedFromEast = true;
+                        }
+
+                        if (lSecondRoomIndex == HoneycombShapeGenerator.getWest(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
+                        {
+                            lRoom.m_ConnectedFromWest = true;
+                        }
+
+                        if (lSecondRoomIndex == HoneycombShapeGenerator.getNorthEast(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
+                        {
+                            lRoom.m_ConnectedFromNorthEast = true;
+                        }
+
+                        if (lSecondRoomIndex == HoneycombShapeGenerator.getNorthWest(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
+                        {
+                            lRoom.m_ConnectedFromNorthWest = true;
+                        }
+
+                        if (lSecondRoomIndex == HoneycombShapeGenerator.getSouthEast(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
+                        {
+                            lRoom.m_ConnectedFromSouthEast = true;
+                        }
+
+                        if (lSecondRoomIndex == HoneycombShapeGenerator.getSouthWest(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
+                        {
+                            lRoom.m_ConnectedFromSouthWest = true;
+                        }
+                    }
+
+                    lRoom.Updatevisibility();
+
+                }
+                break;
+            case LabyShape.Sphere:
+                break;
+            case LabyShape.Torus:
+                break;
         }
 
-        pRoom.Updatevisibility();
+        
+
     }
 
     // Update is called once per frame
