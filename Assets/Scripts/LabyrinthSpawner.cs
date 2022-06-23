@@ -1,3 +1,4 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -26,7 +27,8 @@ public class LabyrinthSpawner : MonoBehaviour
     //public float m_TimeBetweenUpdates = 0.01f;
     public float m_NumberOfConnectionsPerSeconds = 50f;
 
-    public GameObject m_RoomPrefab = null;
+    public GameObject m_SquareRoomPrefab = null;
+    public GameObject m_HexagonalRoomPrefab = null;
 
     public Camera m_RTCam = null;
 
@@ -36,8 +38,8 @@ public class LabyrinthSpawner : MonoBehaviour
     MazeGenerator mMazeGenerator = null;
 
 
-    Vector3 mMazeScale = new Vector3();
-    Vector3 mMazeOffset = new Vector3();
+    //Vector3 mMazeScale = new Vector3();
+    //Vector3 mMazeOffset = new Vector3();
 
     //int m_CurrentColor = 1;
 
@@ -45,109 +47,20 @@ public class LabyrinthSpawner : MonoBehaviour
 
     //public List<> m_PotentialConnections;
 
-    GameObject m_Room1;
-    GameObject m_Room2;
+    GameObject m_Room1 = null;
+    GameObject m_Room2 = null;
 
 
-    bool mNeedToCompute = true;
+    bool mNeedToCompute = false;
 
     // Start is called before the first frame update
     void Start()
     {
-        switch (m_Shape)
-        {
-            case LabyShape.Rectangle:
-                mInternalRepresentation = SquareShapeGenerator.generate(m_NumberOfColumns, m_NumberOfRows);
-                break;
-            case LabyShape.HoneyComb:
-                mInternalRepresentation = HoneycombShapeGenerator.generate(m_NumberOfColumns, m_NumberOfRows);
-                break;
-            case LabyShape.Sphere:
-                break;
-            case LabyShape.Torus:
-                break;
-        }
+        
 
        
-        mMazeGenerator = new MazeGenerator(mInternalRepresentation);
 
-
-        //TODO: Find a way to calculate BB
-        mMazeScale.x = 3.56f / (m_NumberOfColumns*2);//x2 because the prefab is 2 units width
-        mMazeScale.z = 2f / (m_NumberOfRows*2);//x2 because the prefab is 2 units width
-
-        mMazeScale.x = 3.56f / (m_NumberOfColumns*1.78f);//x2 because the prefab is 2 units width
-        mMazeScale.z = 2f / (m_NumberOfRows*1.5f);//x2 because the prefab is 2 units width
-
-        //mMazeScale.y = 1f;
-
-        mMazeScale.x = mMazeScale.y = mMazeScale.z = Mathf.Min(mMazeScale.x, mMazeScale.z);
-
-        //For Rectangular Shape
-        mMazeOffset.x = - (0.5f * m_NumberOfColumns - 0.5f) * mMazeScale.x;
-        mMazeOffset.z = - (0.5f * m_NumberOfRows - 0.5f) * mMazeScale.z;
-
-        //Hexa Shape
-        mMazeOffset.x = - (0.5f * (m_NumberOfColumns-1) ) * mMazeScale.x;
-        mMazeOffset.z = - (0.5f * (m_NumberOfRows-1) ) * mMazeScale.z;
-        mMazeOffset.y = 0;
-
-
-        transform.localScale = mMazeScale;
-        //transform.position = mMazeOffset;
-
-        if ( !m_ProgressiveGeneration )
-        {
-            mMazeGenerator.generate();
-        }
-
-        m_Room1 = GameObject.Instantiate(m_RoomPrefab,
-                    transform.TransformPoint(new Vector3(-10, -10, 0)),
-                    Quaternion.identity, transform);//.GetComponent<RoomConnectionsBehaviour>();
-        m_Room2 = GameObject.Instantiate(m_RoomPrefab,
-                    transform.TransformPoint(new Vector3(-10, -10, 0)),
-                    Quaternion.identity, transform);//.GetComponent<RoomConnectionsBehaviour>();
-        //lRoom.name = "Room (" + i + ";" + j + ")";
-
-#if false
-        for (int j = 0; j < m_NumberOfRows; ++j)
-        {
-            for (int i = 0; i < m_NumberOfColumns; ++i)
-            {
-                RoomConnectionsBehaviour lRoom = GameObject.Instantiate(m_RoomPrefab,
-                    transform.TransformPoint(  new Vector3(2 * i, 0, 2 * j) ), 
-                    Quaternion.identity, transform).GetComponent<RoomConnectionsBehaviour>();
-                lRoom.name = "Room (" + i + ";" + j + ")";
-                m_RoomsList.Add(lRoom);
-
-
-                foreach (Node lNeighbour in  mInternalRepresentation.mNodes[j* m_NumberOfColumns+i].mConnectedNeighbours)
-                {
-                    if (lNeighbour.mIndex == (mInternalRepresentation.mNodes[j * m_NumberOfColumns + i].mIndex - 1))
-                    {
-                        lRoom.m_ConnectedFromWest = true;
-                    }
-
-                    if (lNeighbour.mIndex == (mInternalRepresentation.mNodes[j * m_NumberOfColumns + i].mIndex + 1))
-                    {
-                        lRoom.m_ConnectedFromEast = true;
-                    }
-
-                    if (lNeighbour.mIndex == (mInternalRepresentation.mNodes[j * m_NumberOfColumns + i].mIndex - m_NumberOfColumns))
-                    {
-                        lRoom.m_ConnectedFromSouth = true;
-                    }
-
-                    if (lNeighbour.mIndex == (mInternalRepresentation.mNodes[j * m_NumberOfColumns + i].mIndex + m_NumberOfColumns))
-                    {
-                        lRoom.m_ConnectedFromNorth = true;
-                    }
-                }
-
-                lRoom.Updatevisibility();
-            }
-        }
-#endif
+        InitiateGeneration();
     }
 
 
@@ -185,10 +98,6 @@ public class LabyrinthSpawner : MonoBehaviour
 
     void updateRoomVisibility(int pRoomIndex, GameObject pRoom)
     {
-
-
-        
-
         switch (m_Shape)
         {
             case LabyShape.Rectangle:
@@ -230,7 +139,7 @@ public class LabyrinthSpawner : MonoBehaviour
                     lRoom.resetVisibility();
                     Node lNode = mInternalRepresentation.mNodes[pRoomIndex];
 
-                    lRoom.transform.position = transform.TransformPoint(new Vector3(1.7f * ((pRoomIndex % m_NumberOfColumns) + ((pRoomIndex / m_NumberOfColumns)%2 == 0 ? 0:0.5f)), 0, 1.48f * (pRoomIndex / m_NumberOfColumns)));
+                    lRoom.transform.position = transform.TransformPoint(new Vector3(Mathf.Sqrt(3) * ((pRoomIndex % m_NumberOfColumns) + ((pRoomIndex / m_NumberOfColumns)%2 == 0 ? 0:0.5f)), 0, 1.5f * (pRoomIndex / m_NumberOfColumns)));
 
                     
 
@@ -287,6 +196,124 @@ public class LabyrinthSpawner : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
+        UpdateGeneration();
+    }
+
+    public void SetNumberOfColumns(string pNumberOfColumns)
+    {
+        m_NumberOfColumns = int.Parse(pNumberOfColumns);
+    }
+
+    public void SetNumberOfRows(string pNumberOfRows)
+    {
+        m_NumberOfRows = int.Parse(pNumberOfRows);
+    }
+
+    public void setShapeType(Int32 pShapeType)
+    {
+        m_Shape = (LabyShape)pShapeType;
+    }
+
+    public void InitiateGeneration()
+    {
+        if (mNeedToCompute)
+        {
+            return;
+        }
+
+        mNeedToCompute = true;
+
+        if (m_Room1 != null)
+        {
+            m_Room1.transform.position = new Vector3(-10, -10, 0);
+            GameObject.Destroy(m_Room1);
+        }
+        
+        if (m_Room2 != null)
+        {
+            m_Room2.transform.position = new Vector3(-10, -10, 0);
+            GameObject.Destroy(m_Room2);
+        }
+
+        GameObject lObjectToInstantiate = null;
+
+        switch (m_Shape)
+        {
+            case LabyShape.Rectangle:
+                lObjectToInstantiate = m_SquareRoomPrefab;
+                break;
+            case LabyShape.HoneyComb:
+                lObjectToInstantiate = m_HexagonalRoomPrefab;
+                if( m_AlgorithmIndex > 1)
+                {
+                    mNeedToCompute = false;
+                    return;
+                }
+                break;
+            case LabyShape.Sphere:
+                mNeedToCompute = false;
+                return;
+                break;
+            case LabyShape.Torus:
+                mNeedToCompute = false;
+                return;
+                break;
+        }
+
+        m_Room1 = GameObject.Instantiate(lObjectToInstantiate,
+                   transform.TransformPoint(new Vector3(-10, -10, 0)),
+                   Quaternion.identity, transform);
+        m_Room2 = GameObject.Instantiate(lObjectToInstantiate,
+                    transform.TransformPoint(new Vector3(-10, -10, 0)),
+                    Quaternion.identity, transform);
+
+        RenderTexture lTmpTexture = RenderTexture.active;
+        RenderTexture.active = m_RTCam.targetTexture;
+        GL.Clear(true, true, Color.clear);
+        RenderTexture.active = lTmpTexture;
+
+        AdaptViewportToContent lViewportAdapter = m_RTCam.GetComponent<AdaptViewportToContent>();
+
+        switch (m_Shape)
+        {
+            case LabyShape.Rectangle:
+                mInternalRepresentation = SquareShapeGenerator.generate(m_NumberOfColumns, m_NumberOfRows);
+                lViewportAdapter.m_xMin = -1;
+                lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + m_NumberOfColumns * 2;
+                lViewportAdapter.m_zMin = -5;
+                lViewportAdapter.m_zMax = 5;
+                lViewportAdapter.m_yMin = -1;
+                lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + m_NumberOfRows * 2;
+                break;
+            case LabyShape.HoneyComb:
+                mInternalRepresentation = HoneycombShapeGenerator.generate(m_NumberOfColumns, m_NumberOfRows);
+                lViewportAdapter.m_xMin = -Mathf.Sqrt(3) / 2;
+                lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + (m_NumberOfColumns + 0.5f) * Mathf.Sqrt(3);
+                lViewportAdapter.m_zMin = -5;
+                lViewportAdapter.m_zMax = 5;
+                lViewportAdapter.m_yMin = -1;
+                lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + m_NumberOfRows * 1.5f + 0.5f;
+                break;
+            case LabyShape.Sphere:
+                break;
+            case LabyShape.Torus:
+                break;
+        }
+
+
+        mMazeGenerator = new MazeGenerator(mInternalRepresentation);
+
+
+        if (!m_ProgressiveGeneration)
+        {
+            mMazeGenerator.generate();
+        }
+
+        m_TimeCounter = 0;
+    }
+
+    private void UpdateGeneration()
+    {
         m_TimeCounter += Time.deltaTime;
 
         float lTimeBetweenUpdates = (1f / m_NumberOfConnectionsPerSeconds);
@@ -304,7 +331,7 @@ public class LabyrinthSpawner : MonoBehaviour
                 {
                     mNeedToCompute = !mMazeGenerator.generateStep(ref lNodeIndex1, ref lNodeIndex2);
                 }
-                else if( m_AlgorithmIndex == 1 )
+                else if (m_AlgorithmIndex == 1)
                 {
                     mNeedToCompute = !mMazeGenerator.generateStep2(ref lNodeIndex1, ref lNodeIndex2);
                 }
@@ -321,7 +348,11 @@ public class LabyrinthSpawner : MonoBehaviour
                 updateRoomVisibility(lNodeIndex2, m_Room2);
 
                 m_RTCam.Render();
-                //breakWallBetweenNodes(lNodeIndex1, lNodeIndex2);
+            }
+
+            if ( !mNeedToCompute )
+            {
+                mMazeGenerator = null;
             }
         }
     }
