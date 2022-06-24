@@ -2,8 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+[ExecuteInEditMode]
 public class HexaRoomConnectionsBehaviour : MonoBehaviour
 {
+    public bool m_UpdateInEditMode = false;
+
     public GameObject m_WallFromNorthWest = null;
     public GameObject m_WallFromNorthEast = null;
     public GameObject m_WallFromEast = null;
@@ -24,6 +27,14 @@ public class HexaRoomConnectionsBehaviour : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+    }
+
+    void Update()
+    {
+        if (m_UpdateInEditMode)
+        {
+            Updatevisibility();
+        }
     }
 
     public void resetVisibility()

@@ -71,6 +71,11 @@ public class HoneycombShapeGenerator
         return lIndexToReturn >= 0 ? lIndexToReturn : -1;
     }
 
+    public static int getIndex(int pX, int pY, int pWidth, int pHeight)
+    {
+        return (pY * pWidth) + pX;
+    }
+
     public static Labyrinth generate(int pWidth = 10, int pHeight = 10)
     {
         Labyrinth lLaby = new Labyrinth();
@@ -84,7 +89,6 @@ public class HoneycombShapeGenerator
                 lLaby.mNodes.Add(lNode);
             }
         }
-
 
         for (int j = 0; j < pHeight; ++j)
         {
@@ -146,7 +150,6 @@ public class HoneycombShapeGenerator
                 {
                     lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndexToConnect]);
                 }
-
             }
         }
 

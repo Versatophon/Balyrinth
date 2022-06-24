@@ -5,6 +5,8 @@ using UnityEngine;
 [ExecuteInEditMode]
 public class RoomConnectionsBehaviour : MonoBehaviour
 {
+    public bool m_UpdateInEditMode = false;
+
     public GameObject m_WallFromNorth = null;
     public GameObject m_WallFromEast = null;
     public GameObject m_WallFromSouth = null;
@@ -46,6 +48,9 @@ public class RoomConnectionsBehaviour : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        //Updatevisibility();
+        if (m_UpdateInEditMode)
+        {
+            Updatevisibility();
+        }
     }
 }
