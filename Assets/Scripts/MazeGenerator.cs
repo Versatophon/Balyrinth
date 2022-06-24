@@ -7,7 +7,7 @@ using UnityEngine;
 
 public class MazeGenerator
 {
-
+#if false
     public enum CardinalDirection
     {
         West,
@@ -16,6 +16,7 @@ public class MazeGenerator
         South,
         Last,
     }
+#endif
 
     System.Random mRandomGenerator = new System.Random();
 
@@ -26,17 +27,33 @@ public class MazeGenerator
 
     Labyrinth mLabyrinth;
 
+    LabyrinthGenerator.LabyShape mShape;
+    ShapeGeneratorInterface mShapeGenerator;
+
     Node mLastConnectedNode = null;
     int mNumConnectionsPerformed = 0;
 
-    CardinalDirection mCurrentDirection = CardinalDirection.East;
+    int mCurrentDirection = 0;// CardinalDirection.East;
 
-    public MazeGenerator(Labyrinth pLaby)
+    public MazeGenerator(Labyrinth pLaby, LabyrinthGenerator.LabyShape pShape, int pWidth, int pHeight)
     {
+        mShape = pShape;
+
+        switch (mShape)
+        {
+            case LabyrinthGenerator.LabyShape.Rectangle:
+                mShapeGenerator = new SquareShapeGenerator(pWidth, pHeight);
+                break;
+            case LabyrinthGenerator.LabyShape.HoneyComb:
+                mShapeGenerator = new HoneycombShapeGenerator(pWidth, pHeight);
+                break;
+        }
+
         mLabyrinth = pLaby;
         mStillConnectablesNodes = new List<Node>(pLaby.mNodes);
 
-        mCurrentDirection = (CardinalDirection)mRandomGenerator.Next((int)CardinalDirection.Last);
+        mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.GetNumberOfDirections());
+        //mCurrentDirection = mRandomGenerator.Next(4);
     }
 
     public void generate()
@@ -227,8 +244,20 @@ public class MazeGenerator
     }
 
 
-    private Node getConnectableNodeFromDirection(Node pCurrentNode, CardinalDirection pDirection, int pLabyrinthWidth, int pLabyrinthHeight)
+    private Node getConnectableNodeFromDirection(Node pCurrentNode, int pDirection, int pLabyrinthWidth, int pLabyrinthHeight)
     {
+
+        int lNextNodeIndex = mShapeGenerator.getNextCellIndex(pCurrentNode.mIndex, pDirection);
+
+        if( lNextNodeIndex != -1 && pCurrentNode.mPotentialNeighbours.Contains(mLabyrinth.mNodes[lNextNodeIndex]))
+        {
+            if (mLabyrinth.mNodes[lNextNodeIndex].mColor != pCurrentNode.mColor)
+            {
+                return mLabyrinth.mNodes[lNextNodeIndex];
+            }
+        }
+
+#if false
         switch (pDirection)
         {
             case CardinalDirection.West:
@@ -268,6 +297,7 @@ public class MazeGenerator
                 }
                 break;
         }
+#endif
 
         return null;
     }
@@ -316,7 +346,7 @@ public class MazeGenerator
 
                 while (lNewConnectedNode == null)
                 {
-                    mCurrentDirection = (CardinalDirection)mRandomGenerator.Next((int)CardinalDirection.Last);
+                    mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.GetNumberOfDirections());
                     lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection, pLabyrinthWidth, pLabyrinthHeight);
                 }
 
@@ -394,14 +424,14 @@ public class MazeGenerator
                 //randomize direction
                 if(mRandomGenerator.Next(m_AlgorithmCorridorPseudoLength) == 0)
                 {
-                    mCurrentDirection = (CardinalDirection)mRandomGenerator.Next((int)CardinalDirection.Last);
+                    mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.GetNumberOfDirections());
                 }
 
                 Node lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection, pLabyrinthWidth, pLabyrinthHeight);
 
                 while (lNewConnectedNode == null)
                 {
-                    mCurrentDirection = (CardinalDirection)mRandomGenerator.Next((int)CardinalDirection.Last);
+                    mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.GetNumberOfDirections());
                     lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection, pLabyrinthWidth, pLabyrinthHeight);
                 }
 

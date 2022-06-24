@@ -288,10 +288,16 @@ public class LabyrinthGenerator : MonoBehaviour
         switch (m_Shape)
         {
             case LabyShape.Rectangle:
-                mInternalRepresentation = SquareShapeGenerator.generate(m_NumberOfColumns, m_NumberOfRows);
+                {
+                    ShapeGeneratorInterface lShapeGeneratorInterface = new SquareShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
+                    mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
+                }
                 break;
             case LabyShape.HoneyComb:
-                mInternalRepresentation = HoneycombShapeGenerator.generate(m_NumberOfColumns, m_NumberOfRows);
+                {
+                    ShapeGeneratorInterface lShapeGeneratorInterface = new HoneycombShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
+                    mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
+                }
                 break;
             case LabyShape.Sphere:
                 break;
@@ -299,7 +305,7 @@ public class LabyrinthGenerator : MonoBehaviour
                 break;
         }
 
-        mMazeGenerator = new MazeGenerator(mInternalRepresentation);
+        mMazeGenerator = new MazeGenerator(mInternalRepresentation, m_Shape, m_NumberOfColumns, m_NumberOfRows);
 
         if (!m_ProgressiveGeneration)
         {

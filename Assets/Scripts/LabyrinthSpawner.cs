@@ -5,15 +5,15 @@ using UnityEngine;
 
 public class LabyrinthSpawner : MonoBehaviour
 {
-    public enum LabyShape
-    {
-        Rectangle,
-        HoneyComb,
-        Torus,
-        Sphere,
-    }
+    //public enum LabyShape
+    //{
+    //    Rectangle,
+    //    HoneyComb,
+    //    Torus,
+    //    Sphere,
+    //}
 
-    public LabyShape m_Shape = LabyShape.Rectangle;
+    public LabyrinthGenerator.LabyShape m_Shape = LabyrinthGenerator.LabyShape.Rectangle;
 
     public int m_NumberOfColumns = 10;
     public int m_NumberOfRows = 10;
@@ -52,7 +52,7 @@ public class LabyrinthSpawner : MonoBehaviour
     {
         switch (m_Shape)
         {
-            case LabyShape.Rectangle:
+            case LabyrinthGenerator.LabyShape.Rectangle:
                 {
                     RoomConnectionsBehaviour lRoom = pRoom.GetComponent<RoomConnectionsBehaviour>();
                     lRoom.resetVisibility();
@@ -85,7 +85,7 @@ public class LabyrinthSpawner : MonoBehaviour
                     lRoom.Updatevisibility();
                 }
                 break;
-            case LabyShape.HoneyComb:
+            case LabyrinthGenerator.LabyShape.HoneyComb:
                 {
                     HexaRoomConnectionsBehaviour lRoom = pRoom.GetComponent<HexaRoomConnectionsBehaviour>();
                     lRoom.resetVisibility();
@@ -135,9 +135,9 @@ public class LabyrinthSpawner : MonoBehaviour
 
                 }
                 break;
-            case LabyShape.Sphere:
+            case LabyrinthGenerator.LabyShape.Sphere:
                 break;
-            case LabyShape.Torus:
+            case LabyrinthGenerator.LabyShape.Torus:
                 break;
         }
 
@@ -163,7 +163,7 @@ public class LabyrinthSpawner : MonoBehaviour
 
     public void setShapeType(int pShapeType)
     {
-        m_Shape = (LabyShape)pShapeType;
+        m_Shape = (LabyrinthGenerator.LabyShape)pShapeType;
     }
 
     public void InitiateGeneration()
@@ -191,22 +191,22 @@ public class LabyrinthSpawner : MonoBehaviour
 
         switch (m_Shape)
         {
-            case LabyShape.Rectangle:
+            case LabyrinthGenerator.LabyShape.Rectangle:
                 lObjectToInstantiate = m_SquareRoomPrefab;
                 break;
-            case LabyShape.HoneyComb:
+            case LabyrinthGenerator.LabyShape.HoneyComb:
                 lObjectToInstantiate = m_HexagonalRoomPrefab;
-                if( m_AlgorithmIndex > 1)
-                {
-                    mNeedToCompute = false;
-                    return;
-                }
+                //if( m_AlgorithmIndex > 1)
+                //{
+                //    mNeedToCompute = false;
+                //    return;
+                //}
                 break;
-            case LabyShape.Sphere:
+            case LabyrinthGenerator.LabyShape.Sphere:
                 mNeedToCompute = false;
                 return;
                 break;
-            case LabyShape.Torus:
+            case LabyrinthGenerator.LabyShape.Torus:
                 mNeedToCompute = false;
                 return;
                 break;
@@ -228,31 +228,37 @@ public class LabyrinthSpawner : MonoBehaviour
 
         switch (m_Shape)
         {
-            case LabyShape.Rectangle:
-                mInternalRepresentation = SquareShapeGenerator.generate(m_NumberOfColumns, m_NumberOfRows);
-                lViewportAdapter.m_xMin = -1;
-                lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + m_NumberOfColumns * 2;
-                lViewportAdapter.m_zMin = -5;
-                lViewportAdapter.m_zMax = 5;
-                lViewportAdapter.m_yMin = -1;
-                lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + m_NumberOfRows * 2;
+            case LabyrinthGenerator.LabyShape.Rectangle:
+                {
+                    ShapeGeneratorInterface lShapeGeneratorInterface = new SquareShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
+                    mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
+                    lViewportAdapter.m_xMin = -1;
+                    lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + m_NumberOfColumns * 2;
+                    lViewportAdapter.m_zMin = -5;
+                    lViewportAdapter.m_zMax = 5;
+                    lViewportAdapter.m_yMin = -1;
+                    lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + m_NumberOfRows * 2;
+                }
                 break;
-            case LabyShape.HoneyComb:
-                mInternalRepresentation = HoneycombShapeGenerator.generate(m_NumberOfColumns, m_NumberOfRows);
-                lViewportAdapter.m_xMin = -Mathf.Sqrt(3) / 2;
-                lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + (m_NumberOfColumns + 0.5f) * Mathf.Sqrt(3);
-                lViewportAdapter.m_zMin = -5;
-                lViewportAdapter.m_zMax = 5;
-                lViewportAdapter.m_yMin = -1;
-                lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + m_NumberOfRows * 1.5f + 0.5f;
+            case LabyrinthGenerator.LabyShape.HoneyComb:
+                {
+                    ShapeGeneratorInterface lShapeGeneratorInterface = new HoneycombShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
+                    mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
+                    lViewportAdapter.m_xMin = -Mathf.Sqrt(3) / 2;
+                    lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + (m_NumberOfColumns + 0.5f) * Mathf.Sqrt(3);
+                    lViewportAdapter.m_zMin = -5;
+                    lViewportAdapter.m_zMax = 5;
+                    lViewportAdapter.m_yMin = -1;
+                    lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + m_NumberOfRows * 1.5f + 0.5f;
+                }
                 break;
-            case LabyShape.Sphere:
+            case LabyrinthGenerator.LabyShape.Sphere:
                 break;
-            case LabyShape.Torus:
+            case LabyrinthGenerator.LabyShape.Torus:
                 break;
         }
 
-        mMazeGenerator = new MazeGenerator(mInternalRepresentation);
+        mMazeGenerator = new MazeGenerator(mInternalRepresentation, m_Shape, m_NumberOfColumns, m_NumberOfRows);
 
         if (!m_ProgressiveGeneration)
         {

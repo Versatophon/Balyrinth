@@ -2,8 +2,41 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class HoneycombShapeGenerator
+public class HoneycombShapeGenerator : ShapeGeneratorInterface
 {
+    public int GetNumberOfDirections()
+    {
+        return 6;
+    }
+
+    public int getNextCellIndex(int pCurrentcellIndex, int pDirection)
+    {
+        int lX = pCurrentcellIndex % mWidth;
+        int lY = pCurrentcellIndex / mWidth;
+
+        switch(pDirection)
+        {
+            case 0://WEST
+                return getWest(lX, lY, mWidth, mHeight);
+                break;
+            case 1://NORTHWEST
+                return getNorthWest(lX, lY, mWidth, mHeight);
+                break;
+            case 2://NORTHEAST
+                return getNorthEast(lX, lY, mWidth, mHeight);
+                break;
+            case 3://EAST
+                return getEast(lX, lY, mWidth, mHeight);
+                break;
+            case 4://SOUTHEAST
+                return getSouthEast(lX, lY, mWidth, mHeight);
+                break;
+            case 5://SOUTHWEST
+                return getSouthWest(lX, lY, mWidth, mHeight);
+                break;
+        }
+        return -1;
+    }
 
     public static int getEast(int pX, int pY, int pWidth, int pHeight)
     {
@@ -76,13 +109,24 @@ public class HoneycombShapeGenerator
         return (pY * pWidth) + pX;
     }
 
-    public static Labyrinth generate(int pWidth = 10, int pHeight = 10)
+    public HoneycombShapeGenerator(int pWidth, int pHeight)
     {
+        mWidth = pWidth;
+        mHeight = pHeight;
+    }
+
+    int mWidth = 10;
+    int mHeight = 10;
+
+    public Labyrinth generate(int pWidth = 10, int pHeight = 10)
+    {
+        mWidth = pWidth;
+        mHeight = pHeight;
         Labyrinth lLaby = new Labyrinth();
 
-        for (int j = 0; j < pHeight; ++j)
+        for (int j = 0; j < mHeight; ++j)
         {
-            for (int i = 0; i < pWidth; ++i)
+            for (int i = 0; i < mWidth; ++i)
             {
                 Node lNode = new Node();
 
@@ -90,15 +134,15 @@ public class HoneycombShapeGenerator
             }
         }
 
-        for (int j = 0; j < pHeight; ++j)
+        for (int j = 0; j < mHeight; ++j)
         {
-            for (int i = 0; i < pWidth; ++i)
+            for (int i = 0; i < mWidth; ++i)
             {
-                int lIndex = j * pWidth + i;
+                int lIndex = j * mWidth + i;
 
                 lLaby.mNodes[lIndex].mIndex = lIndex;
 
-                int lIndexToConnect = getEast(i, j, pWidth, pHeight);
+                int lIndexToConnect = getEast(i, j, mWidth, mHeight);
                 //Debug.Log("EA " + lIndexToConnect + " - " + (pWidth* pHeight));
 
                 if( lIndexToConnect >= 0 )
@@ -107,7 +151,7 @@ public class HoneycombShapeGenerator
                 }
 
 
-                lIndexToConnect = getNorthEast(i, j, pWidth, pHeight);
+                lIndexToConnect = getNorthEast(i, j, mWidth, mHeight);
                 //Debug.Log("NE " + lIndexToConnect + " - " + (pWidth * pHeight));
 
                 if ( lIndexToConnect >= 0 )
@@ -116,7 +160,7 @@ public class HoneycombShapeGenerator
                 }
 
 
-                lIndexToConnect = getNorthWest(i, j, pWidth, pHeight);
+                lIndexToConnect = getNorthWest(i, j, mWidth, mHeight);
                 //Debug.Log("NW " + lIndexToConnect + " - " + (pWidth * pHeight));
 
                 if ( lIndexToConnect >= 0 )
@@ -125,7 +169,7 @@ public class HoneycombShapeGenerator
                 }
 
 
-                lIndexToConnect = getWest(i, j, pWidth, pHeight);
+                lIndexToConnect = getWest(i, j, mWidth, mHeight);
                 //Debug.Log("WE " + lIndexToConnect + " - " + (pWidth * pHeight));
 
                 if ( lIndexToConnect >= 0 )
@@ -134,7 +178,7 @@ public class HoneycombShapeGenerator
                 }
 
 
-                lIndexToConnect = getSouthWest(i, j, pWidth, pHeight);
+                lIndexToConnect = getSouthWest(i, j, mWidth, mHeight);
                 //Debug.Log("SW " + lIndexToConnect + " - " + (pWidth * pHeight));
 
                 if ( lIndexToConnect >= 0 )
@@ -143,7 +187,7 @@ public class HoneycombShapeGenerator
                 }
 
 
-                lIndexToConnect = getSouthEast(i, j, pWidth, pHeight);
+                lIndexToConnect = getSouthEast(i, j, mWidth, mHeight);
                 //Debug.Log("SE " + lIndexToConnect + " - " + (pWidth * pHeight));
 
                 if ( lIndexToConnect >= 0 )
