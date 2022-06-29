@@ -13,7 +13,7 @@ public class LabyrinthSpawner : MonoBehaviour
     //    Sphere,
     //}
 
-    public LabyrinthGenerator.LabyShape m_Shape = LabyrinthGenerator.LabyShape.Rectangle;
+    public Balyrinth.Utilities.LabyShape m_Shape = Balyrinth.Utilities.LabyShape.Rectangle;
 
     public int m_NumberOfColumns = 10;
     public int m_NumberOfRows = 10;
@@ -50,98 +50,17 @@ public class LabyrinthSpawner : MonoBehaviour
 
     void updateRoomVisibility(int pRoomIndex, GameObject pRoom)
     {
-        switch (m_Shape)
+        RoomConnectionsBehaviour lRoom = pRoom.GetComponent<RoomConnectionsBehaviour>();
+        lRoom.resetVisibility();
+        Node lNode = mMazeGenerator.getNode(pRoomIndex);
+        lRoom.transform.position = mMazeGenerator.getPosition(pRoomIndex);
+
+        for (int i = 0; i < mMazeGenerator.mShapeGenerator.GetNumberOfDirections(); ++i)
         {
-            case LabyrinthGenerator.LabyShape.Rectangle:
-                {
-                    RoomConnectionsBehaviour lRoom = pRoom.GetComponent<RoomConnectionsBehaviour>();
-                    lRoom.resetVisibility();
-                    Node lNode = mInternalRepresentation.mNodes[pRoomIndex];
-                    lRoom.transform.position = transform.TransformPoint(new Vector3(2 * (pRoomIndex % m_NumberOfColumns), 0, 2 * (pRoomIndex / m_NumberOfColumns)));
-
-
-                    foreach (Node lNeighbourNode in lNode.mConnectedNeighbours)
-                    {
-                        if (pRoomIndex == (lNeighbourNode.mIndex - 1))
-                        {
-                            lRoom.m_ConnectedFromEast = true;
-                        }
-
-                        if (pRoomIndex == (lNeighbourNode.mIndex + 1))
-                        {
-                            lRoom.m_ConnectedFromWest = true;
-                        }
-
-                        if (pRoomIndex == (lNeighbourNode.mIndex + m_NumberOfColumns))
-                        {
-                            lRoom.m_ConnectedFromSouth = true;
-                        }
-
-                        if (pRoomIndex == (lNeighbourNode.mIndex - m_NumberOfColumns))
-                        {
-                            lRoom.m_ConnectedFromNorth = true;
-                        }
-                    }
-                    lRoom.Updatevisibility();
-                }
-                break;
-            case LabyrinthGenerator.LabyShape.HoneyComb:
-                {
-                    HexaRoomConnectionsBehaviour lRoom = pRoom.GetComponent<HexaRoomConnectionsBehaviour>();
-                    lRoom.resetVisibility();
-                    Node lNode = mInternalRepresentation.mNodes[pRoomIndex];
-
-                    lRoom.transform.position = transform.TransformPoint(new Vector3(Mathf.Sqrt(3) * ((pRoomIndex % m_NumberOfColumns) + ((pRoomIndex / m_NumberOfColumns)%2 == 0 ? 0:0.5f)), 0, 1.5f * (pRoomIndex / m_NumberOfColumns)));
-
-                    
-
-                    foreach (Node lNeighbourNode in lNode.mConnectedNeighbours)
-                    {
-                        int lFirstRoomIndex = pRoomIndex; 
-                        int lSecondRoomIndex = lNeighbourNode.mIndex;
-
-                        if (lSecondRoomIndex == HoneycombShapeGenerator.getEast(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
-                        {
-                            lRoom.m_ConnectedFromEast = true;
-                        }
-
-                        if (lSecondRoomIndex == HoneycombShapeGenerator.getWest(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
-                        {
-                            lRoom.m_ConnectedFromWest = true;
-                        }
-
-                        if (lSecondRoomIndex == HoneycombShapeGenerator.getNorthEast(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
-                        {
-                            lRoom.m_ConnectedFromNorthEast = true;
-                        }
-
-                        if (lSecondRoomIndex == HoneycombShapeGenerator.getNorthWest(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
-                        {
-                            lRoom.m_ConnectedFromNorthWest = true;
-                        }
-
-                        if (lSecondRoomIndex == HoneycombShapeGenerator.getSouthEast(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
-                        {
-                            lRoom.m_ConnectedFromSouthEast = true;
-                        }
-
-                        if (lSecondRoomIndex == HoneycombShapeGenerator.getSouthWest(lFirstRoomIndex % m_NumberOfColumns, lFirstRoomIndex / m_NumberOfColumns, m_NumberOfColumns, m_NumberOfRows))
-                        {
-                            lRoom.m_ConnectedFromSouthWest = true;
-                        }
-                    }
-
-                    lRoom.Updatevisibility();
-
-                }
-                break;
-            case LabyrinthGenerator.LabyShape.Sphere:
-                break;
-            case LabyrinthGenerator.LabyShape.Torus:
-                break;
+            lRoom.m_ConnectionsActive[i] = mMazeGenerator.areConnected(pRoomIndex, mMazeGenerator.mShapeGenerator.getNextCellIndex(pRoomIndex, i));
         }
 
-        
+        lRoom.Updatevisibility();
 
     }
 
@@ -163,7 +82,27 @@ public class LabyrinthSpawner : MonoBehaviour
 
     public void setShapeType(int pShapeType)
     {
-        m_Shape = (LabyrinthGenerator.LabyShape)pShapeType;
+        m_Shape = (Balyrinth.Utilities.LabyShape)pShapeType;
+    }
+
+    public void setAlgorithm(int pAlgorithmIndex)
+    {
+        m_AlgorithmIndex = pAlgorithmIndex;
+    }
+
+    public void setProgressiveGeneration(bool pProgressiveGeneration)
+    {
+        m_ProgressiveGeneration = pProgressiveGeneration;
+    }
+    
+    public void setCorridorPseudoLength(string pCorridorPseudoLength)
+    {
+        int.TryParse(pCorridorPseudoLength, out m_AlgorithmCorridorPseudoLength);
+    }
+    
+    public void setNumberOfConnectionsPerSecond(string pNumberOfConnectionsPerSecond)
+    {
+        float.TryParse(pNumberOfConnectionsPerSecond, out m_NumberOfConnectionsPerSeconds);
     }
 
     public void InitiateGeneration()
@@ -191,10 +130,10 @@ public class LabyrinthSpawner : MonoBehaviour
 
         switch (m_Shape)
         {
-            case LabyrinthGenerator.LabyShape.Rectangle:
+            case Balyrinth.Utilities.LabyShape.Rectangle:
                 lObjectToInstantiate = m_SquareRoomPrefab;
                 break;
-            case LabyrinthGenerator.LabyShape.HoneyComb:
+            case Balyrinth.Utilities.LabyShape.HoneyComb:
                 lObjectToInstantiate = m_HexagonalRoomPrefab;
                 //if( m_AlgorithmIndex > 1)
                 //{
@@ -202,11 +141,11 @@ public class LabyrinthSpawner : MonoBehaviour
                 //    return;
                 //}
                 break;
-            case LabyrinthGenerator.LabyShape.Sphere:
+            case Balyrinth.Utilities.LabyShape.Sphere:
                 mNeedToCompute = false;
                 return;
                 break;
-            case LabyrinthGenerator.LabyShape.Torus:
+            case Balyrinth.Utilities.LabyShape.Torus:
                 mNeedToCompute = false;
                 return;
                 break;
@@ -228,7 +167,7 @@ public class LabyrinthSpawner : MonoBehaviour
 
         switch (m_Shape)
         {
-            case LabyrinthGenerator.LabyShape.Rectangle:
+            case Balyrinth.Utilities.LabyShape.Rectangle:
                 {
                     ShapeGeneratorInterface lShapeGeneratorInterface = new SquareShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
                     mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
@@ -240,7 +179,7 @@ public class LabyrinthSpawner : MonoBehaviour
                     lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + m_NumberOfRows * 2;
                 }
                 break;
-            case LabyrinthGenerator.LabyShape.HoneyComb:
+            case Balyrinth.Utilities.LabyShape.HoneyComb:
                 {
                     ShapeGeneratorInterface lShapeGeneratorInterface = new HoneycombShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
                     mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
@@ -252,17 +191,35 @@ public class LabyrinthSpawner : MonoBehaviour
                     lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + m_NumberOfRows * 1.5f + 0.5f;
                 }
                 break;
-            case LabyrinthGenerator.LabyShape.Sphere:
+            case Balyrinth.Utilities.LabyShape.Sphere:
                 break;
-            case LabyrinthGenerator.LabyShape.Torus:
+            case Balyrinth.Utilities.LabyShape.Torus:
                 break;
         }
+
+        lViewportAdapter.UpdateViewport();
 
         mMazeGenerator = new MazeGenerator(mInternalRepresentation, m_Shape, m_NumberOfColumns, m_NumberOfRows);
 
         if (!m_ProgressiveGeneration)
         {
-            mMazeGenerator.generate();
+            mMazeGenerator.generate(m_AlgorithmIndex, m_NumberOfColumns, m_NumberOfRows, m_AlgorithmCorridorPseudoLength);
+            Debug.Log("Generation Performed !");
+
+            float lStartupTime = Time.realtimeSinceStartup;
+
+            foreach ( Node lNode in mInternalRepresentation.mNodes )
+            {
+                updateRoomVisibility(lNode.mIndex, m_Room1);
+                m_RTCam.Render();
+            }
+
+            mNeedToCompute = false;
+
+            float lRenderTime = Time.realtimeSinceStartup;
+
+            Debug.Log((lRenderTime - lStartupTime) + " s. for rendering generation !");
+            Debug.Log((m_NumberOfColumns*m_NumberOfRows)/(lRenderTime - lStartupTime) + " Room/s. rendering rate !");
         }
 
         m_TimeCounter = 0;

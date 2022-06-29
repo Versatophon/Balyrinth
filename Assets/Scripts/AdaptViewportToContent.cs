@@ -14,40 +14,61 @@ public class AdaptViewportToContent : MonoBehaviour
     public float m_zMin = -1;
     public float m_zMax = 1;
 
-    private Camera m_Camera;
+    private System.Lazy<Camera> m_Camera = null;
+
+    public AdaptViewportToContent()
+    {
+        m_Camera = new System.Lazy<Camera>(() => GetCamera());
+    }
 
     // Start is called before the first frame update
     void Start()
     {
-        m_Camera = GetComponent<Camera>();
-        m_Camera.orthographic = true;
     }
 
     // Update is called once per frame
     void Update()
     {
-        //Adapt to ratio
-        float lCamRatio = m_Camera.pixelRect.size.x / m_Camera.pixelRect.size.y;
+        UpdateViewport();
+    }
 
-        float lContentRatio = (m_xMax-m_xMin) / (m_yMax-m_yMin);
+    Camera GetCamera()
+    {
+        Camera lCamera = GetComponent<Camera>();
+        lCamera.orthographic = true;
+
+        return lCamera;
+    }
+
+    public void UpdateViewport()
+    {
+        //if (m_Camera == null)
+        //{
+        //    GetCamera();
+        //}
+
+        //Adapt to ratio
+        float lCamRatio = m_Camera.Value.pixelRect.size.x / m_Camera.Value.pixelRect.size.y;
+
+        float lContentRatio = (m_xMax - m_xMin) / (m_yMax - m_yMin);
 
         if (lContentRatio > lCamRatio)
         {
-            float lHalfHeight = (m_xMax-m_xMin) / (lCamRatio * 2.0f);
+            float lHalfHeight = (m_xMax - m_xMin) / (lCamRatio * 2.0f);
             float lCenter = (m_yMin + m_yMax) / 2.0f;
 
-            setOrtho(m_Camera, m_xMin, m_xMax, lCenter - lHalfHeight, lCenter + lHalfHeight, m_zMin, m_zMax);
+            setOrtho(m_Camera.Value, m_xMin, m_xMax, lCenter - lHalfHeight, lCenter + lHalfHeight, m_zMin, m_zMax);
         }
         else
         {
             float lHalfWidth = (m_yMax - m_yMin) * (lCamRatio / 2.0f);
             float lCenter = (m_xMin + m_xMax) / 2.0f;
 
-            setOrtho(m_Camera, lCenter - lHalfWidth, lCenter + lHalfWidth, m_yMin, m_yMax, m_zMin, m_zMax);
+            setOrtho(m_Camera.Value, lCenter - lHalfWidth, lCenter + lHalfWidth, m_yMin, m_yMax, m_zMin, m_zMax);
         }
 
-        m_Camera.nearClipPlane = m_zMin;
-        m_Camera.farClipPlane = m_zMax;
+        m_Camera.Value.nearClipPlane = m_zMin;
+        m_Camera.Value.farClipPlane = m_zMax;
 
         //setOrtho(m_Camera, m_xMin, m_xMax, m_zMin, m_zMax, m_yMin, m_yMax);
     }

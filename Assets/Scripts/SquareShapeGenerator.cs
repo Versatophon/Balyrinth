@@ -1,3 +1,4 @@
+using Balyrinth;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -85,29 +86,99 @@ public class SquareShapeGenerator:ShapeGeneratorInterface
                 int lIndex = j * mWidth + i;
 
                 lLaby.mNodes[lIndex].mIndex = lIndex;
-
-                if (i > 0)
+                
+                //Order is important
+                if (i > 0)//WEST
                 {
                     lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndex - 1]);
                 }
+                else
+                {
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(null);
+                }
 
-                if (i < mWidth - 1)
+                if (j < mHeight - 1)//NORTH
+                {
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndex + mWidth]);
+                }
+                else
+                {
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(null);
+                }
+
+                if (i < mWidth - 1)//EAST
                 {
                     lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndex + 1]);
                 }
+                else
+                {
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(null);
+                }
 
-                if (j > 0)
+                if (j > 0)//SOUTH
                 {
                     lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndex - mWidth]);
                 }
-
-                if (j < mHeight - 1)
+                else
                 {
-                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndex + mWidth]);
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(null);
                 }
             }
         }
 
         return lLaby;
+    }
+
+    public int getOppositeDirection(int pDirection)
+    {
+        return (pDirection+GetNumberOfDirections()/2)%GetNumberOfDirections();
+    }
+
+    public Vector3 getRoomPosition(int pIndex)
+    {
+        return new Vector3((pIndex % mWidth) * 2, 0, (pIndex / mWidth) * 2);
+    }
+
+    public void getDoorExtremities(int pRoomIndex, int pDirection, out Vector3 pLeft, out Vector3 pRight)
+    {
+        Vector3 lCenter = getRoomPosition(pRoomIndex);
+        switch (pDirection) 
+        {
+            case 0://WEST
+                pLeft = lCenter + new Vector3(-1, 0, -1);
+                pRight = lCenter + new Vector3(-1, 0, 1);
+                break;
+            case 1://NORTH
+                pLeft = lCenter + new Vector3(-1, 0, 1);
+                pRight = lCenter + new Vector3(1, 0, 1);
+                break;
+            case 2://EAST
+                pLeft = lCenter + new Vector3(1, 0, 1);
+                pRight = lCenter + new Vector3(1, 0, -1);
+                break;
+            case 3://SOUTH
+                pLeft = lCenter + new Vector3(1, 0, -1);
+                pRight = lCenter + new Vector3(-1, 0, -1);
+                break;
+            default:
+                pLeft = lCenter;
+                pRight = lCenter;
+                break;
+        }
+    }
+
+    public Utilities.LabyShape getLabyShape()
+    {
+        return Balyrinth.Utilities.LabyShape.Rectangle;
+    }
+
+    public int getWidth()
+    {
+        return mWidth;
+    }
+
+    public int getHeight()
+    {
+        return mHeight;
     }
 }

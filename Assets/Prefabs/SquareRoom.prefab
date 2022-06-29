@@ -906,7 +906,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!4 &8828441504235311336
 Transform:
   m_ObjectHideFlags: 0
@@ -1105,7 +1105,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 5907605237184277677}
-  - component: {fileID: 540715418246357732}
+  - component: {fileID: 6801299605612145497}
   m_Layer: 0
   m_Name: SquareRoom
   m_TagString: Untagged
@@ -1138,7 +1138,7 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &540715418246357732
+--- !u!114 &6801299605612145497
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -1150,13 +1150,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eff8d9c513034b24cb967ee35788a5ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_WallFromNorth: {fileID: 7384836383112054615}
-  m_WallFromEast: {fileID: 3941619752699727706}
-  m_WallFromSouth: {fileID: 6857368494450735629}
-  m_WallFromWest: {fileID: 605233452723880339}
+  m_UpdateInEditMode: 1
+  m_WallsObjects:
+  - {fileID: 605233452723880339}
+  - {fileID: 7384836383112054615}
+  - {fileID: 3941619752699727706}
+  - {fileID: 6857368494450735629}
   m_Ceiling: {fileID: 7661844236787817480}
-  m_ConnectedFromNorth: 0
-  m_ConnectedFromEast: 0
-  m_ConnectedFromSouth: 0
-  m_ConnectedFromWest: 0
-  m_Color: 0
+  m_ConnectionsActive: 00000000

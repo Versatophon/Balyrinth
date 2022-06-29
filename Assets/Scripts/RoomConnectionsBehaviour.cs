@@ -7,19 +7,10 @@ public class RoomConnectionsBehaviour : MonoBehaviour
 {
     public bool m_UpdateInEditMode = false;
 
-    public GameObject m_WallFromNorth = null;
-    public GameObject m_WallFromEast = null;
-    public GameObject m_WallFromSouth = null;
-    public GameObject m_WallFromWest = null;
+    public List<GameObject> m_WallsObjects = new List<GameObject>();
     public GameObject m_Ceiling = null;
 
-    public bool m_ConnectedFromNorth = false;
-    public bool m_ConnectedFromEast = false;
-    public bool m_ConnectedFromSouth = false;
-    public bool m_ConnectedFromWest = false;
-
-    public int m_Color = 0;
-
+    public List<bool> m_ConnectionsActive = new List<bool>();
 
     // Start is called before the first frame update
     void Start()
@@ -28,21 +19,19 @@ public class RoomConnectionsBehaviour : MonoBehaviour
 
     public void resetVisibility()
     {
-        m_ConnectedFromNorth = false;
-        m_ConnectedFromEast = false;
-        m_ConnectedFromSouth = false;
-        m_ConnectedFromWest = false;
+        m_ConnectionsActive.ForEach(lValue => lValue = false);
     }
 
     public void Updatevisibility()
     {
-        m_WallFromNorth?.SetActive(!m_ConnectedFromNorth);
-        m_WallFromEast?.SetActive(!m_ConnectedFromEast);
-        m_WallFromSouth?.SetActive(!m_ConnectedFromSouth);
-        m_WallFromWest?.SetActive(!m_ConnectedFromWest);
+        bool lCeilingVisibility = true;
+        for (int i = 0; i < m_ConnectionsActive.Count; ++i)
+        {
+            m_WallsObjects[i]?.SetActive(!m_ConnectionsActive[i]);
+            lCeilingVisibility &= !m_ConnectionsActive[i];
+        }
 
-
-        m_Ceiling?.SetActive(!(m_ConnectedFromNorth || m_ConnectedFromEast || m_ConnectedFromSouth || m_ConnectedFromWest));
+        m_Ceiling?.SetActive(lCeilingVisibility);
     }
 
     // Update is called once per frame

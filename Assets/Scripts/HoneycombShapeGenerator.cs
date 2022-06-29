@@ -1,3 +1,4 @@
+using Balyrinth;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -142,21 +143,17 @@ public class HoneycombShapeGenerator : ShapeGeneratorInterface
 
                 lLaby.mNodes[lIndex].mIndex = lIndex;
 
-                int lIndexToConnect = getEast(i, j, mWidth, mHeight);
-                //Debug.Log("EA " + lIndexToConnect + " - " + (pWidth* pHeight));
+                //Order is important
+                int lIndexToConnect = getWest(i, j, mWidth, mHeight);
+                //Debug.Log("WE " + lIndexToConnect + " - " + (pWidth * pHeight));
 
-                if( lIndexToConnect >= 0 )
+                if (lIndexToConnect >= 0)
                 {
                     lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndexToConnect]);
                 }
-
-
-                lIndexToConnect = getNorthEast(i, j, mWidth, mHeight);
-                //Debug.Log("NE " + lIndexToConnect + " - " + (pWidth * pHeight));
-
-                if ( lIndexToConnect >= 0 )
+                else
                 {
-                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndexToConnect]);
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(null);
                 }
 
 
@@ -167,14 +164,48 @@ public class HoneycombShapeGenerator : ShapeGeneratorInterface
                 {
                     lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndexToConnect]);
                 }
+                else
+                {
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(null);
+                }
 
 
-                lIndexToConnect = getWest(i, j, mWidth, mHeight);
-                //Debug.Log("WE " + lIndexToConnect + " - " + (pWidth * pHeight));
+                lIndexToConnect = getNorthEast(i, j, mWidth, mHeight);
+                //Debug.Log("NE " + lIndexToConnect + " - " + (pWidth * pHeight));
 
-                if ( lIndexToConnect >= 0 )
+                if (lIndexToConnect >= 0)
                 {
                     lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndexToConnect]);
+                }
+                else
+                {
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(null);
+                }
+
+
+                lIndexToConnect = getEast(i, j, mWidth, mHeight);
+                //Debug.Log("EA " + lIndexToConnect + " - " + (pWidth* pHeight));
+
+                if (lIndexToConnect >= 0)
+                {
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndexToConnect]);
+                }
+                else
+                {
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(null);
+                }
+
+
+                lIndexToConnect = getSouthEast(i, j, mWidth, mHeight);
+                //Debug.Log("SE " + lIndexToConnect + " - " + (pWidth * pHeight));
+
+                if (lIndexToConnect >= 0)
+                {
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndexToConnect]);
+                }
+                else
+                {
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(null);
                 }
 
 
@@ -185,18 +216,57 @@ public class HoneycombShapeGenerator : ShapeGeneratorInterface
                 {
                     lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndexToConnect]);
                 }
-
-
-                lIndexToConnect = getSouthEast(i, j, mWidth, mHeight);
-                //Debug.Log("SE " + lIndexToConnect + " - " + (pWidth * pHeight));
-
-                if ( lIndexToConnect >= 0 )
+                else
                 {
-                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(lLaby.mNodes[lIndexToConnect]);
+                    lLaby.mNodes[lIndex].mPotentialNeighbours.Add(null);
                 }
             }
         }
 
         return lLaby;
+    }
+
+    public int getOppositeDirection(int pDirection)
+    {
+        return (pDirection + (GetNumberOfDirections() / 2)) % GetNumberOfDirections();
+    }
+
+    public Vector3 getRoomPosition(int pIndex)
+    {
+        return new Vector3(Mathf.Sqrt(3) * ((pIndex % mWidth) + ((pIndex / mWidth) % 2 == 0 ? 0 : 0.5f)), 0, 1.5f * (pIndex / mWidth));
+    }
+
+    const float sStartAngle = -180;
+    const float sLeftOffset = -30;
+    const float sRightOffset = 30;
+    const float sStepOffset = 60;
+
+    public void getDoorExtremities(int pRoomIndex, int pDirection, out Vector3 pLeft, out Vector3 pRight)//Hexagon of 1 unit radius
+    {
+        Vector3 lCenter = getRoomPosition(pRoomIndex);
+
+        float lleftAngle  = Mathf.Deg2Rad * (sStartAngle + pDirection * sStepOffset + sLeftOffset);
+        float lRightAngle = Mathf.Deg2Rad * (sStartAngle + pDirection * sStepOffset + sRightOffset);
+
+        pLeft = lCenter + new Vector3(Mathf.Cos(lleftAngle), 0, -Mathf.Sin(lleftAngle));
+        pRight = lCenter + new Vector3(Mathf.Cos(lRightAngle), 0, -Mathf.Sin(lRightAngle));
+
+        //pRight = lCenter + new Vector3(Mathf.Cos(Mathf.Deg2Rad * (-210 - pDirection * 60)), 0, Mathf.Sin(Mathf.Deg2Rad * (-210 - pDirection * 60)));
+        //pLeft = lCenter + new Vector3(Mathf.Cos(Mathf.Deg2Rad * (-150 - pDirection * 60)), 0, Mathf.Sin(Mathf.Deg2Rad * (-150 - pDirection * 60)));
+    }
+
+    public Utilities.LabyShape getLabyShape()
+    {
+        return Utilities.LabyShape.HoneyComb;
+    }
+
+    public int getWidth()
+    {
+        return mWidth;
+    }
+
+    public int getHeight()
+    {
+        return mHeight;
     }
 }
