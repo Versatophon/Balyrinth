@@ -233,7 +233,7 @@ public class HoneycombShapeGenerator : ShapeGeneratorInterface
 
     public Vector3 getRoomPosition(int pIndex)
     {
-        return new Vector3(Mathf.Sqrt(3) * ((pIndex % mWidth) + ((pIndex / mWidth) % 2 == 0 ? 0 : 0.5f)), 0, 1.5f * (pIndex / mWidth));
+        return new Vector3(Mathf.Sqrt(3) * ((pIndex % mWidth) + ((pIndex / mWidth) % 2 == 0 ? 0 : 0.5f)), 0, 1.5f * (pIndex / mWidth)) * Balyrinth.Utilities.VIEW_SCALE;
     }
 
     const float sStartAngle = -180;
@@ -248,8 +248,8 @@ public class HoneycombShapeGenerator : ShapeGeneratorInterface
         float lleftAngle  = Mathf.Deg2Rad * (sStartAngle + pDirection * sStepOffset + sLeftOffset);
         float lRightAngle = Mathf.Deg2Rad * (sStartAngle + pDirection * sStepOffset + sRightOffset);
 
-        pLeft = lCenter + new Vector3(Mathf.Cos(lleftAngle), 0, -Mathf.Sin(lleftAngle));
-        pRight = lCenter + new Vector3(Mathf.Cos(lRightAngle), 0, -Mathf.Sin(lRightAngle));
+        pLeft = lCenter + (new Vector3(Mathf.Cos(lleftAngle), 0, -Mathf.Sin(lleftAngle)) * Balyrinth.Utilities.VIEW_SCALE);
+        pRight = lCenter + (new Vector3(Mathf.Cos(lRightAngle), 0, -Mathf.Sin(lRightAngle)) * Balyrinth.Utilities.VIEW_SCALE);
 
         //pRight = lCenter + new Vector3(Mathf.Cos(Mathf.Deg2Rad * (-210 - pDirection * 60)), 0, Mathf.Sin(Mathf.Deg2Rad * (-210 - pDirection * 60)));
         //pLeft = lCenter + new Vector3(Mathf.Cos(Mathf.Deg2Rad * (-150 - pDirection * 60)), 0, Mathf.Sin(Mathf.Deg2Rad * (-150 - pDirection * 60)));

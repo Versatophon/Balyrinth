@@ -72,24 +72,24 @@ public class LabyrinthGenerator : MonoBehaviour
                     {
                         ShapeGeneratorInterface lShapeGeneratorInterface = new SquareShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
                         mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
-                        m_MapCamAdapter.m_xMin = -1;
-                        m_MapCamAdapter.m_xMax = m_MapCamAdapter.m_xMin + m_NumberOfColumns * 2;
+                        m_MapCamAdapter.m_xMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
+                        m_MapCamAdapter.m_xMax = m_MapCamAdapter.m_xMin + m_NumberOfColumns * 2 * Balyrinth.Utilities.VIEW_SCALE;
                         m_MapCamAdapter.m_zMin = -5;
                         m_MapCamAdapter.m_zMax = 5;
-                        m_MapCamAdapter.m_yMin = -1;
-                        m_MapCamAdapter.m_yMax = m_MapCamAdapter.m_yMin + m_NumberOfRows * 2;
+                        m_MapCamAdapter.m_yMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
+                        m_MapCamAdapter.m_yMax = m_MapCamAdapter.m_yMin + m_NumberOfRows * 2 * Balyrinth.Utilities.VIEW_SCALE;
                     }
                     break;
                 case Balyrinth.Utilities.LabyShape.HoneyComb:
                     {
                         ShapeGeneratorInterface lShapeGeneratorInterface = new HoneycombShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
                         mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
-                        m_MapCamAdapter.m_xMin = -Mathf.Sqrt(3) / 2;
-                        m_MapCamAdapter.m_xMax = m_MapCamAdapter.m_xMin + (m_NumberOfColumns + 0.5f) * Mathf.Sqrt(3);
+                        m_MapCamAdapter.m_xMin = (-Mathf.Sqrt(3) / 2) * Balyrinth.Utilities.VIEW_SCALE;
+                        m_MapCamAdapter.m_xMax = m_MapCamAdapter.m_xMin + (m_NumberOfColumns + 0.5f) * Mathf.Sqrt(3) * Balyrinth.Utilities.VIEW_SCALE;
                         m_MapCamAdapter.m_zMin = -5;
                         m_MapCamAdapter.m_zMax = 5;
-                        m_MapCamAdapter.m_yMin = -1;
-                        m_MapCamAdapter.m_yMax = m_MapCamAdapter.m_yMin + m_NumberOfRows * 1.5f + 0.5f;
+                        m_MapCamAdapter.m_yMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
+                        m_MapCamAdapter.m_yMax = m_MapCamAdapter.m_yMin + (m_NumberOfRows * 1.5f + 0.5f) * Balyrinth.Utilities.VIEW_SCALE;
                     }
                     break;
                 case Balyrinth.Utilities.LabyShape.Sphere:
@@ -146,7 +146,11 @@ public class LabyrinthGenerator : MonoBehaviour
 
         mNeedToCompute = true;
 
-        m_Player.transform.position = new Vector3(0, 1.5f, 0);
+        
+        m_Player.transform.position = new Vector3(0, 
+                                                  (UnityEngine.XR.Management.XRGeneralSettings.Instance?.Manager?.activeLoader == null ? 1.5f: 0),
+                                                  0);
+
         m_Player.transform.rotation = Quaternion.identity;
 
         switch (m_Shape)

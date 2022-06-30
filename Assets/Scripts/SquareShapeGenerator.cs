@@ -136,7 +136,7 @@ public class SquareShapeGenerator:ShapeGeneratorInterface
 
     public Vector3 getRoomPosition(int pIndex)
     {
-        return new Vector3((pIndex % mWidth) * 2, 0, (pIndex / mWidth) * 2);
+        return new Vector3((pIndex % mWidth) * 2, 0, (pIndex / mWidth) * 2) * Balyrinth.Utilities.VIEW_SCALE;
     }
 
     public void getDoorExtremities(int pRoomIndex, int pDirection, out Vector3 pLeft, out Vector3 pRight)
@@ -145,20 +145,20 @@ public class SquareShapeGenerator:ShapeGeneratorInterface
         switch (pDirection) 
         {
             case 0://WEST
-                pLeft = lCenter + new Vector3(-1, 0, -1);
-                pRight = lCenter + new Vector3(-1, 0, 1);
+                pLeft = lCenter + new Vector3(-1, 0, -1) * Balyrinth.Utilities.VIEW_SCALE;
+                pRight = lCenter + new Vector3(-1, 0, 1) * Balyrinth.Utilities.VIEW_SCALE;
                 break;
             case 1://NORTH
-                pLeft = lCenter + new Vector3(-1, 0, 1);
-                pRight = lCenter + new Vector3(1, 0, 1);
+                pLeft = lCenter + new Vector3(-1, 0, 1) * Balyrinth.Utilities.VIEW_SCALE;
+                pRight = lCenter + new Vector3(1, 0, 1) * Balyrinth.Utilities.VIEW_SCALE;
                 break;
             case 2://EAST
-                pLeft = lCenter + new Vector3(1, 0, 1);
-                pRight = lCenter + new Vector3(1, 0, -1);
+                pLeft = lCenter + new Vector3(1, 0, 1) * Balyrinth.Utilities.VIEW_SCALE;
+                pRight = lCenter + new Vector3(1, 0, -1) * Balyrinth.Utilities.VIEW_SCALE;
                 break;
             case 3://SOUTH
-                pLeft = lCenter + new Vector3(1, 0, -1);
-                pRight = lCenter + new Vector3(-1, 0, -1);
+                pLeft = lCenter + new Vector3(1, 0, -1) * Balyrinth.Utilities.VIEW_SCALE;
+                pRight = lCenter + new Vector3(-1, 0, -1) * Balyrinth.Utilities.VIEW_SCALE;
                 break;
             default:
                 pLeft = lCenter;

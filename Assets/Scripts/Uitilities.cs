@@ -17,7 +17,7 @@ namespace Balyrinth
             Sphere,
         }
 
-
+        public const float VIEW_SCALE = 2.0f;
         public static bool isInSight(float pMinimalViewvingAngle, float pMaximalViewingAngle, float pMinimalObjectAngle, float pMaximalObjectAngle, out float pMinimalOverlapAngle, out float pMaximalOverlapAngle)
         {
             pMinimalViewvingAngle = Mathf.Repeat(pMinimalViewvingAngle, 360);

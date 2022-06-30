@@ -65,7 +65,7 @@ public class RoomsVisibilityUpdater : MonoBehaviour
             while ( m_Rooms.Count < mVisibleRoomsIndices.Count )
             {
                 m_Rooms.Add(GameObject.Instantiate(mObjectToInstantiate,
-                  transform.TransformPoint(new Vector3(-10, -10, 0)),
+                  transform.TransformPoint(new Vector3(-10, -10, 0) * Balyrinth.Utilities.VIEW_SCALE),
                   Quaternion.identity, transform));
             }
 
@@ -81,7 +81,7 @@ public class RoomsVisibilityUpdater : MonoBehaviour
                 else
                 {
                     m_Rooms[i].SetActive(false);
-                    m_Rooms[i].transform.position = new Vector3(-10, 0, -10);
+                    m_Rooms[i].transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
                 }
             }
         }
@@ -153,9 +153,10 @@ public class RoomsVisibilityUpdater : MonoBehaviour
                 {
                     //lSGInterface = new HoneycombShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
 
+                    lZPosition = (int)((lPlayerPosition.z + (1f * Balyrinth.Utilities.VIEW_SCALE)) / (1.5f * Balyrinth.Utilities.VIEW_SCALE));
+                    
                     bool lEven = (lZPosition % 2) == 0;
-                    lZPosition = (int)((lPlayerPosition.z + 1f) / 1.5f);
-                    lXPosition = (int)(((lPlayerPosition.x + (lEven ? (Mathf.Sqrt(3) / 2) : 0)) / (Mathf.Sqrt(3))));
+                    lXPosition = (int)(((lPlayerPosition.x + (lEven ? (Mathf.Sqrt(3) / 2) * Balyrinth.Utilities.VIEW_SCALE : 0)) / (Mathf.Sqrt(3) * Balyrinth.Utilities.VIEW_SCALE)));
 
                     //Debug.Log(lPlayerPosition);
                     //Debug.Log(lXPosition + " " + lZPosition + " from " + lPlayerPosition);
@@ -168,7 +169,9 @@ public class RoomsVisibilityUpdater : MonoBehaviour
 
                     lRoomIndex = HoneycombShapeGenerator.getIndex(lXPosition, lZPosition, lNumberOfColumns, lNumberOfRows);
 
-                    float lMagnitude = (new Vector3(Mathf.Sqrt(3) * ((lRoomIndex % lNumberOfColumns) + ((lRoomIndex / lNumberOfColumns) % 2 == 0 ? 0 : 0.5f)), 0, 1.5f * (lRoomIndex / lNumberOfColumns)) - lPlayerPosition).magnitude;
+                    float lMagnitude = (new Vector3(Mathf.Sqrt(3) * ((lRoomIndex % lNumberOfColumns) + ((lRoomIndex / lNumberOfColumns) % 2 == 0 ? 0 : 0.5f)) * Balyrinth.Utilities.VIEW_SCALE,
+                                                    0, 
+                                                    1.5f * (lRoomIndex / lNumberOfColumns) * Balyrinth.Utilities.VIEW_SCALE) - lPlayerPosition).magnitude;
 
 #if true
                     for (int j = -1; j < 2; ++j)
@@ -178,7 +181,9 @@ public class RoomsVisibilityUpdater : MonoBehaviour
                             int lLocalRoomIndex = lXPosition + i + (lZPosition + j) * lNumberOfColumns;
                             if (lLocalRoomIndex >= 0 && lLocalRoomIndex < lNumberOfColumns * lNumberOfRows)
                             {
-                                float lLocalMagnitude = (new Vector3(Mathf.Sqrt(3) * ((lLocalRoomIndex % lNumberOfColumns) + ((lLocalRoomIndex / lNumberOfColumns) % 2 == 0 ? 0 : 0.5f)), 0, 1.5f * (lLocalRoomIndex / lNumberOfColumns)) - lPlayerPosition).magnitude;
+                                float lLocalMagnitude = (new Vector3(Mathf.Sqrt(3) * ((lLocalRoomIndex % lNumberOfColumns) + ((lLocalRoomIndex / lNumberOfColumns) % 2 == 0 ? 0 : 0.5f)) * Balyrinth.Utilities.VIEW_SCALE,
+                                                                     0,
+                                                                     1.5f * (lLocalRoomIndex / lNumberOfColumns) * Balyrinth.Utilities.VIEW_SCALE) - lPlayerPosition).magnitude;
 
                                 if (lLocalMagnitude < lMagnitude)
                                 {
@@ -200,8 +205,8 @@ public class RoomsVisibilityUpdater : MonoBehaviour
                     int lNumberOfRows = m_MazeGenerator.mShapeGenerator.getHeight();
 
                     //TODO: Check this part
-                    lZPosition = (int)((lPlayerPosition.z + 1f) / 2f);
-                    lXPosition = (int)((lPlayerPosition.x + 1f) / 2f);
+                    lZPosition = (int)((lPlayerPosition.z + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
+                    lXPosition = (int)((lPlayerPosition.x + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
 
                     lZPosition = Mathf.Clamp(lZPosition, 0, lNumberOfRows - 1);
                     lXPosition = Mathf.Clamp(lXPosition, 0, lNumberOfColumns - 1);
