@@ -23,6 +23,7 @@ public class LabyrinthGenerator : MonoBehaviour
     public GameObject m_HexagonalRoomPrefab = null;
 
     public GameObject m_Player = null;
+    public GameObject m_Goal = null;
 
     public RoomsVisibilityUpdater m_RoomsVisibilityUpdater = null;
     public AdaptViewportToContent m_MapCamAdapter = null;

@@ -31,6 +31,9 @@ public class LabyrinthSpawner : MonoBehaviour
 
     public Camera m_RTCam = null;
 
+    public GameObject m_StartingCheckpoint = null;
+    public GameObject m_EndingCheckpoint  = null;
+
     Labyrinth mInternalRepresentation;
     MazeGenerator mMazeGenerator = null;
 
@@ -39,8 +42,13 @@ public class LabyrinthSpawner : MonoBehaviour
     GameObject m_Room1 = null;
     GameObject m_Room2 = null;
 
+    Node mStartingNode;
+    Node mEndingNode;
+
 
     bool mNeedToCompute = false;
+
+    bool mFirstPass = true;
 
     // Start is called before the first frame update
     void Start()
@@ -113,6 +121,7 @@ public class LabyrinthSpawner : MonoBehaviour
         }
 
         mNeedToCompute = true;
+        mFirstPass = true;
 
         if (m_Room1 != null)
         {
@@ -152,11 +161,21 @@ public class LabyrinthSpawner : MonoBehaviour
         }
 
         m_Room1 = GameObject.Instantiate(lObjectToInstantiate,
-                   transform.TransformPoint(new Vector3(-10, -10, 0) * Balyrinth.Utilities.VIEW_SCALE),
+                   transform.TransformPoint(new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE),
                    Quaternion.identity, transform);
         m_Room2 = GameObject.Instantiate(lObjectToInstantiate,
-                    transform.TransformPoint(new Vector3(-10, -10, 0) * Balyrinth.Utilities.VIEW_SCALE),
+                    transform.TransformPoint(new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE),
                     Quaternion.identity, transform);
+
+        if (m_StartingCheckpoint != null)
+        {
+            m_StartingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
+        }
+
+        if (m_EndingCheckpoint != null)
+        {
+            m_EndingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
+        }
 
         RenderTexture lTmpTexture = RenderTexture.active;
         RenderTexture.active = m_RTCam.targetTexture;
@@ -257,8 +276,32 @@ public class LabyrinthSpawner : MonoBehaviour
                     mNeedToCompute = !mMazeGenerator.generateStep4(ref lNodeIndex1, ref lNodeIndex2, m_NumberOfColumns, m_NumberOfRows, m_AlgorithmCorridorPseudoLength);
                 }
 
+                if (!mFirstPass)
+                {
+                    if (m_StartingCheckpoint != null && m_EndingCheckpoint != null)
+                    {
+                        m_StartingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
+                        m_EndingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
+                        updateRoomVisibility(mStartingNode.mIndex, m_Room1);
+                        updateRoomVisibility(mEndingNode.mIndex, m_Room2);
+                    }
+                }
+                else
+                {
+                    mFirstPass = false;
+                }
+
+                m_RTCam.Render();
+
                 updateRoomVisibility(lNodeIndex1, m_Room1);
                 updateRoomVisibility(lNodeIndex2, m_Room2);
+
+                if (m_StartingCheckpoint != null && m_EndingCheckpoint != null)
+                {
+                    mInternalRepresentation.findMaximumPath(out mStartingNode, out mEndingNode);
+                    m_StartingCheckpoint.transform.position = mMazeGenerator.getPosition(mStartingNode.mIndex);
+                    m_EndingCheckpoint.transform.position = mMazeGenerator.getPosition(mEndingNode.mIndex);
+                }
 
                 m_RTCam.Render();
             }
