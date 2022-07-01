@@ -137,8 +137,20 @@ public class LabyrinthGenerator : MonoBehaviour
         m_Shape = (Balyrinth.Utilities.LabyShape)pShapeType;
     }
 
+    public void respawnInputCB(UnityEngine.InputSystem.InputAction.CallbackContext pContext)
+    {
+        if (pContext.phase == UnityEngine.InputSystem.InputActionPhase.Performed)
+        {
+            InitiateGeneration();
+            //Debug.Log("Respawn called with CB context");
+        }
+    }
+
+
     public void InitiateGeneration()
     {
+        //Debug.Log("Regenerate Maze !");
+
         if (mNeedToCompute)
         {
             return;

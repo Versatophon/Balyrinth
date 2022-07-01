@@ -21,8 +21,8 @@
       "depth": 0,
       "source": "builtin",
       "dependencies": {
-        "com.unity.xr.oculus": "3.0.1",
-        "com.unity.xr.openxr": "1.4.2"
+        "com.unity.xr.oculus": "3.0.0",
+        "com.unity.xr.openxr": "1.3.1"
       }
     },
     "com.unity.ide.rider": {
@@ -59,26 +59,17 @@
       },
       "url": "https://packages.unity.com"
     },
-    "com.unity.nuget.newtonsoft-json": {
-      "version": "3.0.2",
-      "depth": 2,
-      "source": "registry",
-      "dependencies": {},
-      "url": "https://packages.unity.com"
-    },
     "com.unity.services.core": {
-      "version": "1.4.0",
+      "version": "1.0.1",
       "depth": 1,
       "source": "registry",
       "dependencies": {
-        "com.unity.modules.unitywebrequest": "1.0.0",
-        "com.unity.nuget.newtonsoft-json": "3.0.2",
-        "com.unity.modules.androidjni": "1.0.0"
+        "com.unity.modules.unitywebrequest": "1.0.0"
       },
       "url": "https://packages.unity.com"
     },
     "com.unity.subsystemregistration": {
-      "version": "1.1.0",
+      "version": "1.1.1",
       "depth": 2,
       "source": "registry",
       "dependencies": {
@@ -107,7 +98,7 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.timeline": {
-      "version": "1.6.4",
+      "version": "1.7.1",
       "depth": 0,
       "source": "registry",
       "dependencies": {

@@ -1,7 +1,12 @@
+//#define USE_LEGACY_INPUT
+
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
+
+
+
 
 public class PlayerControl : MonoBehaviour
 {
@@ -18,16 +23,17 @@ public class PlayerControl : MonoBehaviour
     private Vector2 m_MovingInput = Vector2.zero;
     private Vector2 m_LookInput = Vector2.zero;
 
+#if USE_LEGACY_INPUT
     List<UnityEngine.XR.InputDevice> mLeftInputDevices;
     List<UnityEngine.XR.InputDevice> mRightInputDevices;
-
+#endif
     // Start is called before the first frame update
     void Start()
     {
         m_Rigidbody = GetComponent<Rigidbody>();
 
+#if USE_LEGACY_INPUT
         //XR
-
         mLeftInputDevices = new List<UnityEngine.XR.InputDevice>();
         UnityEngine.XR.InputDevices.GetDevicesAtXRNode(UnityEngine.XR.XRNode.LeftHand, mLeftInputDevices);
 
@@ -37,13 +43,24 @@ public class PlayerControl : MonoBehaviour
         UnityEngine.XR.InputDevices.GetDevicesAtXRNode(UnityEngine.XR.XRNode.RightHand, mRightInputDevices);
 
         Debug.Log($"{mRightInputDevices.Count} right devices discovered !");
+#endif
     }
 
     // Update is called once per frame
     void Update()
     {
-        mLeftInputDevices[0].TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out m_MovingInput);
-        mRightInputDevices[0].TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out m_LookInput);
+#if USE_LEGACY_INPUT
+        if (mLeftInputDevices.Count > 0)
+        {
+            mLeftInputDevices[0].TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out m_MovingInput);
+        }
+
+        if(mRightInputDevices.Count > 0)
+        {
+            mRightInputDevices[0].TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out m_LookInput);
+        }
+#endif
+
         moveUsingInputs();
     }
 
@@ -89,18 +106,32 @@ public class PlayerControl : MonoBehaviour
             m_Rigidbody.transform.Translate(lFinalMoveVector, Space.World);
         }
 
+        //Put values To Zero
+        m_MovingInput = Vector2.zero;
+        m_LookInput = Vector2.zero;
+
     }
 
     public void moveInputs(InputAction.CallbackContext pContext)
     {
-       
-        //m_MovingInput = pContext.action.ReadValue<Vector2>();// new Vector2(pContext.action.ReadValue<Vector2>().x , UnityEngine.UIElements.Experimental.Easing.InQuad(pContext.action.ReadValue<Vector2>().y)*Mathf.Sign(pContext.action.ReadValue<Vector2>().y));
-        //Debug.Log($"Moving input change : {m_MovingInput}");
+        if (pContext.phase == InputActionPhase.Performed)
+        {
+            m_MovingInput = pContext.action.ReadValue<Vector2>();// new Vector2(pContext.action.ReadValue<Vector2>().x , UnityEngine.UIElements.Experimental.Easing.InQuad(pContext.action.ReadValue<Vector2>().y)*Mathf.Sign(pContext.action.ReadValue<Vector2>().y));
+            //Debug.Log($"Moving input change : {m_MovingInput} at frame {Time.frameCount} with ID {pContext.action.id}");
+        }
     }
 
     public void lookInputs(InputAction.CallbackContext pContext)
     {
-        //m_LookInput = pContext.action.ReadValue<Vector2>();
-        //Debug.Log($"Looking input change : {m_LookInput}");
+        if (pContext.phase == InputActionPhase.Performed)
+        {
+            m_LookInput = pContext.action.ReadValue<Vector2>();
+            //Debug.Log($"Looking input change : {m_LookInput} at frame {Time.frameCount} with ID {pContext.action.id}");
+        }
+        else
+        {
+            //Debug.Log($"Context Phase : {pContext.}");
+        }
     }
+
 }
