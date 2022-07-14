@@ -1,64 +1,41 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
-public class LabyrinthSpawner : MonoBehaviour
+public class LabyrinthSpawner : MonoBehaviour, MazeGenerationListener
 {
-    //public enum LabyShape
-    //{
-    //    Rectangle,
-    //    HoneyComb,
-    //    Torus,
-    //    Sphere,
-    //}
-
-    public Balyrinth.Utilities.LabyShape m_Shape = Balyrinth.Utilities.LabyShape.Rectangle;
-
-    public int m_NumberOfColumns = 10;
-    public int m_NumberOfRows = 10;
-
-    public bool m_ProgressiveGeneration = false;
-
-    public int m_AlgorithmIndex = 0;
-    
-    public int m_AlgorithmCorridorPseudoLength = 4;
-
-    public float m_NumberOfConnectionsPerSeconds = 50f;
+    public MazeGeneratorManager m_MazeGeneratorManager;
 
     public GameObject m_SquareRoomPrefab = null;
     public GameObject m_HexagonalRoomPrefab = null;
 
+    GameObject mRoomToInstantiate = null;
+
     public Camera m_RTCam = null;
 
-    public GameObject m_StartingCheckpoint = null;
-    public GameObject m_EndingCheckpoint  = null;
+    public GameObject m_StartingPointPrefab = null;
+    public GameObject m_EndingPointPrefab = null;
+
+    GameObject m_StartingCP = null;
+    GameObject m_EndingCP = null;
 
     public LineRenderer m_PathRenderer = null;
-    public CatmullRomSpline m_ReferenceSpline = null;
+    CatmullRomSpline m_ReferenceSpline = null;
 
     public int m_PathSplineSubdivisions = 10;
     public float m_PathTension = 0.5f;
 
-    Labyrinth mInternalRepresentation;
-    MazeGenerator mMazeGenerator = null;
-
-    float m_TimeCounter = 0f;
-
-    GameObject m_Room1 = null;
-    GameObject m_Room2 = null;
-
-    Node mStartingNode;
-    Node mEndingNode;
-
+    List<GameObject> m_Rooms = new List<GameObject>();
 
     bool mNeedToCompute = false;
-
-    bool mFirstPass = true;
 
     // Start is called before the first frame update
     void Start()
     {
+        m_ReferenceSpline = new CatmullRomSpline();
+        m_MazeGeneratorManager?.SetGenerationListener(this);
         InitiateGeneration();
     }
 
@@ -66,57 +43,45 @@ public class LabyrinthSpawner : MonoBehaviour
     {
         RoomConnectionsBehaviour lRoom = pRoom.GetComponent<RoomConnectionsBehaviour>();
         lRoom.resetVisibility();
-        Node lNode = mMazeGenerator.getNode(pRoomIndex);
-        lRoom.transform.position = mMazeGenerator.getPosition(pRoomIndex);
 
-        for (int i = 0; i < mMazeGenerator.mShapeGenerator.GetNumberOfDirections(); ++i)
-        {
-            lRoom.m_ConnectionsActive[i] = mMazeGenerator.areConnected(pRoomIndex, mMazeGenerator.mShapeGenerator.getNextCellIndex(pRoomIndex, i));
-        }
+        lRoom.transform.position = m_MazeGeneratorManager.GetObjectPosition(pRoomIndex);
+        lRoom.m_ConnectionsActive = m_MazeGeneratorManager.GetConnectedDirections(pRoomIndex).ToList();
 
         lRoom.Updatevisibility();
-
     }
 
     // Update is called once per frame
     void Update()
     {
-        UpdateGeneration();
-    }
+        int[] lUpdatedRooms = m_MazeGeneratorManager.UpdateGeneration();
 
-    public void SetNumberOfColumns(string pNumberOfColumns)
-    {
-        int.TryParse(pNumberOfColumns, out m_NumberOfColumns);
-    }
+        if (lUpdatedRooms.Length > 0)
+        {
+            while (lUpdatedRooms.Length > m_Rooms.Count)
+            {
+                m_Rooms.Add(GameObject.Instantiate(mRoomToInstantiate,
+                                                   transform.TransformPoint(new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE),
+                                                   Quaternion.identity, transform));
+            }
 
-    public void SetNumberOfRows(string pNumberOfRows)
-    {
-        int.TryParse(pNumberOfRows, out m_NumberOfRows);
-    }
+            for (int i = 0; i < m_Rooms.Count; ++i)
+            {
+                if (i < lUpdatedRooms.Length)
+                {
+                    m_Rooms[i].SetActive(true);
+                    m_Rooms[i].transform.position = m_MazeGeneratorManager.GetObjectPosition(lUpdatedRooms[i]);
 
-    public void setShapeType(int pShapeType)
-    {
-        m_Shape = (Balyrinth.Utilities.LabyShape)pShapeType;
-    }
+                    m_Rooms[i].GetComponent<RoomConnectionsBehaviour>().m_ConnectionsActive = m_MazeGeneratorManager.GetConnectedDirections(lUpdatedRooms[i]).ToList();
+                    m_Rooms[i].GetComponent<RoomConnectionsBehaviour>().Updatevisibility();
+                }
+                else
+                {
+                    m_Rooms[i].SetActive(false);
+                }
+            }
 
-    public void setAlgorithm(int pAlgorithmIndex)
-    {
-        m_AlgorithmIndex = pAlgorithmIndex;
-    }
-
-    public void setProgressiveGeneration(bool pProgressiveGeneration)
-    {
-        m_ProgressiveGeneration = pProgressiveGeneration;
-    }
-    
-    public void setCorridorPseudoLength(string pCorridorPseudoLength)
-    {
-        int.TryParse(pCorridorPseudoLength, out m_AlgorithmCorridorPseudoLength);
-    }
-    
-    public void setNumberOfConnectionsPerSecond(string pNumberOfConnectionsPerSecond)
-    {
-        float.TryParse(pNumberOfConnectionsPerSecond, out m_NumberOfConnectionsPerSeconds);
+            m_RTCam.Render();
+        }
     }
 
     public void InitiateGeneration()
@@ -127,39 +92,27 @@ public class LabyrinthSpawner : MonoBehaviour
         }
 
         mNeedToCompute = true;
-        mFirstPass = true;
 
         if (m_PathRenderer != null)
         {
             m_PathRenderer.gameObject.SetActive(false);
         }
 
-        if (m_Room1 != null)
+        foreach(GameObject lRoom in m_Rooms)
         {
-            m_Room1.transform.position = new Vector3(-10, -10, 0) * Balyrinth.Utilities.VIEW_SCALE;
-            GameObject.Destroy(m_Room1);
-        }
-        
-        if (m_Room2 != null)
-        {
-            m_Room2.transform.position = new Vector3(-10, -10, 0) * Balyrinth.Utilities.VIEW_SCALE;
-            GameObject.Destroy(m_Room2);
+            lRoom.transform.position = new Vector3(-10, -10, 0) * Balyrinth.Utilities.VIEW_SCALE;
+            GameObject.DestroyImmediate(lRoom);
         }
 
-        GameObject lObjectToInstantiate = null;
+        m_Rooms.Clear();
 
-        switch (m_Shape)
+        switch (m_MazeGeneratorManager.m_Shape)
         {
             case Balyrinth.Utilities.LabyShape.Rectangle:
-                lObjectToInstantiate = m_SquareRoomPrefab;
+                mRoomToInstantiate = m_SquareRoomPrefab;
                 break;
             case Balyrinth.Utilities.LabyShape.HoneyComb:
-                lObjectToInstantiate = m_HexagonalRoomPrefab;
-                //if( m_AlgorithmIndex > 1)
-                //{
-                //    mNeedToCompute = false;
-                //    return;
-                //}
+                mRoomToInstantiate = m_HexagonalRoomPrefab;
                 break;
             case Balyrinth.Utilities.LabyShape.Sphere:
                 mNeedToCompute = false;
@@ -171,21 +124,22 @@ public class LabyrinthSpawner : MonoBehaviour
                 break;
         }
 
-        m_Room1 = GameObject.Instantiate(lObjectToInstantiate,
-                   transform.TransformPoint(new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE),
-                   Quaternion.identity, transform);
-        m_Room2 = GameObject.Instantiate(lObjectToInstantiate,
-                    transform.TransformPoint(new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE),
-                    Quaternion.identity, transform);
+        m_Rooms.Add(GameObject.Instantiate(mRoomToInstantiate, 
+                                           transform.TransformPoint(new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE),
+                                           Quaternion.identity, transform));
 
-        if (m_StartingCheckpoint != null)
+
+
+        if (m_StartingCP != null)
         {
-            m_StartingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
+            GameObject.DestroyImmediate(m_StartingCP);
+            m_StartingCP = null;
         }
 
-        if (m_EndingCheckpoint != null)
+        if (m_EndingCP != null)
         {
-            m_EndingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
+            GameObject.DestroyImmediate(m_EndingCP);
+            m_EndingCP = null;
         }
 
         RenderTexture lTmpTexture = RenderTexture.active;
@@ -193,54 +147,49 @@ public class LabyrinthSpawner : MonoBehaviour
         GL.Clear(true, true, Color.clear);
         RenderTexture.active = lTmpTexture;
 
-        AdaptViewportToContent lViewportAdapter = m_RTCam.GetComponent<AdaptViewportToContent>();
+        {//Viewport Update
+            AdaptViewportToContent lViewportAdapter = m_RTCam.GetComponent<AdaptViewportToContent>();
 
-        switch (m_Shape)
-        {
-            case Balyrinth.Utilities.LabyShape.Rectangle:
-                {
-                    ShapeGeneratorInterface lShapeGeneratorInterface = new SquareShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
-                    mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
-                    lViewportAdapter.m_xMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
-                    lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + m_NumberOfColumns * 2 * Balyrinth.Utilities.VIEW_SCALE;
-                    lViewportAdapter.m_zMin = -5;
-                    lViewportAdapter.m_zMax = 5;
-                    lViewportAdapter.m_yMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
-                    lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + m_NumberOfRows * 2 * Balyrinth.Utilities.VIEW_SCALE;
-                }
-                break;
-            case Balyrinth.Utilities.LabyShape.HoneyComb:
-                {
-                    ShapeGeneratorInterface lShapeGeneratorInterface = new HoneycombShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
-                    mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
-                    lViewportAdapter.m_xMin = (-Mathf.Sqrt(3) / 2) * Balyrinth.Utilities.VIEW_SCALE;
-                    lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + (m_NumberOfColumns + 0.5f) * Mathf.Sqrt(3) * Balyrinth.Utilities.VIEW_SCALE;
-                    lViewportAdapter.m_zMin = -5;
-                    lViewportAdapter.m_zMax = 5;
-                    lViewportAdapter.m_yMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
-                    lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + (m_NumberOfRows * 1.5f + 0.5f) * Balyrinth.Utilities.VIEW_SCALE;
-                }
-                break;
-            case Balyrinth.Utilities.LabyShape.Sphere:
-                break;
-            case Balyrinth.Utilities.LabyShape.Torus:
-                break;
+            switch (m_MazeGeneratorManager.m_Shape)
+            {
+                case Balyrinth.Utilities.LabyShape.Rectangle:
+                    {
+                        lViewportAdapter.m_xMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
+                        lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + m_MazeGeneratorManager.m_NumberOfColumns * 2 * Balyrinth.Utilities.VIEW_SCALE;
+                        lViewportAdapter.m_zMin = -5;
+                        lViewportAdapter.m_zMax = 5;
+                        lViewportAdapter.m_yMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
+                        lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + m_MazeGeneratorManager.m_NumberOfRows * 2 * Balyrinth.Utilities.VIEW_SCALE;
+                    }
+                    break;
+                case Balyrinth.Utilities.LabyShape.HoneyComb:
+                    {
+                        lViewportAdapter.m_xMin = (-Mathf.Sqrt(3) / 2) * Balyrinth.Utilities.VIEW_SCALE;
+                        lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + (m_MazeGeneratorManager.m_NumberOfColumns + 0.5f) * Mathf.Sqrt(3) * Balyrinth.Utilities.VIEW_SCALE;
+                        lViewportAdapter.m_zMin = -5;
+                        lViewportAdapter.m_zMax = 5;
+                        lViewportAdapter.m_yMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
+                        lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + (m_MazeGeneratorManager.m_NumberOfRows * 1.5f + 0.5f) * Balyrinth.Utilities.VIEW_SCALE;
+                    }
+                    break;
+                case Balyrinth.Utilities.LabyShape.Sphere:
+                    break;
+                case Balyrinth.Utilities.LabyShape.Torus:
+                    break;
+            }
+
+            lViewportAdapter.UpdateViewport();
         }
 
-        lViewportAdapter.UpdateViewport();
+        m_MazeGeneratorManager.InitiateGeneration();
 
-        mMazeGenerator = new MazeGenerator(mInternalRepresentation, m_Shape, m_NumberOfColumns, m_NumberOfRows);
-
-        if (!m_ProgressiveGeneration)
+        if (!m_MazeGeneratorManager.m_ProgressiveGeneration)
         {
-            mMazeGenerator.generate(m_AlgorithmIndex, m_NumberOfColumns, m_NumberOfRows, m_AlgorithmCorridorPseudoLength);
-            Debug.Log("Generation Performed !");
-
             float lStartupTime = Time.realtimeSinceStartup;
 
-            foreach ( Node lNode in mInternalRepresentation.mNodes )
+            foreach ( int lNodeIndex in m_MazeGeneratorManager.GetActiveNodes())
             {
-                updateRoomVisibility(lNode.mIndex, m_Room1);
+                updateRoomVisibility(lNodeIndex, m_Rooms[0]);
                 m_RTCam.Render();
             }
 
@@ -249,104 +198,82 @@ public class LabyrinthSpawner : MonoBehaviour
             float lRenderTime = Time.realtimeSinceStartup;
 
             Debug.Log((lRenderTime - lStartupTime) + " s. for rendering generation !");
-            Debug.Log((m_NumberOfColumns*m_NumberOfRows)/(lRenderTime - lStartupTime) + " Room/s. rendering rate !");
+            Debug.Log((m_MazeGeneratorManager.m_NumberOfColumns * m_MazeGeneratorManager.m_NumberOfRows)/(lRenderTime - lStartupTime) + " Room/s. rendering rate !");
         }
-
-        m_TimeCounter = 0;
     }
 
-    private void UpdateGeneration()
+    public void GenerationDone()
     {
-        m_TimeCounter += Time.deltaTime;
-
-        float lTimeBetweenUpdates = (1f / m_NumberOfConnectionsPerSeconds);
-
-        if (m_ProgressiveGeneration && mNeedToCompute)
+        if (m_StartingCP == null)
         {
-            while (m_TimeCounter > lTimeBetweenUpdates && mNeedToCompute)
-            {
-                m_TimeCounter -= lTimeBetweenUpdates;
-
-                int lNodeIndex1 = -1;
-                int lNodeIndex2 = -1;
-
-                if (m_AlgorithmIndex == 0)
-                {
-                    mNeedToCompute = !mMazeGenerator.generateStep(ref lNodeIndex1, ref lNodeIndex2);
-                }
-                else if (m_AlgorithmIndex == 1)
-                {
-                    mNeedToCompute = !mMazeGenerator.generateStep2(ref lNodeIndex1, ref lNodeIndex2);
-                }
-                else if (m_AlgorithmIndex == 2)
-                {
-                    mNeedToCompute = !mMazeGenerator.generateStep3(ref lNodeIndex1, ref lNodeIndex2, m_NumberOfColumns, m_NumberOfRows);
-                }
-                else if (m_AlgorithmIndex == 3)
-                {
-                    mNeedToCompute = !mMazeGenerator.generateStep4(ref lNodeIndex1, ref lNodeIndex2, m_NumberOfColumns, m_NumberOfRows, m_AlgorithmCorridorPseudoLength);
-                }
-
-                if (!mFirstPass)
-                {
-                    //if (m_StartingCheckpoint != null && m_EndingCheckpoint != null)
-                    //{
-                    //    m_StartingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
-                    //    m_EndingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
-                    //    updateRoomVisibility(mStartingNode.mIndex, m_Room1);
-                    //    updateRoomVisibility(mEndingNode.mIndex, m_Room2);
-                    //}
-                }
-                else
-                {
-                    mFirstPass = false;
-                }
-
-                m_RTCam.Render();
-
-                updateRoomVisibility(lNodeIndex1, m_Room1);
-                updateRoomVisibility(lNodeIndex2, m_Room2);
-
-                
-
-                m_RTCam.Render();
-            }
-
-            if ( !mNeedToCompute )
-            {
-                if (m_StartingCheckpoint != null && m_EndingCheckpoint != null)
-                {
-                    //List<Node> lCompletePath;
-                    mInternalRepresentation.findMaximumPathExtremities(out mStartingNode, out mEndingNode);
-                    m_StartingCheckpoint.transform.position = mMazeGenerator.getPosition(mStartingNode.mIndex);
-                    m_EndingCheckpoint.transform.position = mMazeGenerator.getPosition(mEndingNode.mIndex);
-                }
-
-                List<Node> lLabyrinthPath;
-                mInternalRepresentation.findMaximumCompletePath(mStartingNode, mEndingNode, out lLabyrinthPath);
-
-                if (m_PathRenderer != null)
-                {
-                    m_ReferenceSpline.m_CurvePoints.Clear();
-                    m_ReferenceSpline.alpha = m_PathTension;
-                    for (int  i = 0; i < lLabyrinthPath.Count; ++i)
-                    {
-                        Vector3 lPos = mMazeGenerator.getPosition(lLabyrinthPath[i].mIndex);
-                        m_ReferenceSpline.m_CurvePoints.Add(new Vector3(lPos.x, 0, lPos.z));
-                    }
-
-                    Vector3[] lSplinePoints = m_ReferenceSpline.Generate(m_PathSplineSubdivisions);
-                    m_PathRenderer.positionCount = lSplinePoints.Length;
-                    m_PathRenderer.SetPositions(lSplinePoints);
-
-                    m_PathRenderer.gameObject.SetActive(true);
-
-                    m_RTCam.Render();
-                }
-
-                mMazeGenerator = null;
-                mNeedToCompute = false;
-            }
+            m_StartingCP = GameObject.Instantiate(m_StartingPointPrefab);
         }
+        
+        if (m_EndingCP == null)
+        {
+            m_EndingCP = GameObject.Instantiate(m_EndingPointPrefab);
+        }
+
+        m_StartingCP.transform.position = m_MazeGeneratorManager.GetObjectPosition(m_MazeGeneratorManager.GetStartingNodeIndex());
+        m_EndingCP.transform.position = m_MazeGeneratorManager.GetObjectPosition(m_MazeGeneratorManager.GetEndingNodeIndex());
+
+        if (m_PathRenderer != null)
+        {
+            int[] lMazePathIndices = m_MazeGeneratorManager.GetCompletePath();
+
+            m_ReferenceSpline.m_CurvePoints.Clear();
+            m_ReferenceSpline.alpha = m_PathTension;
+            for (int i = 0; i < lMazePathIndices.Length; ++i)
+            {
+                Vector3 lPos = m_MazeGeneratorManager.GetObjectPosition(lMazePathIndices[i]);// mMazeGenerator.getPosition(lLabyrinthPath[i].mIndex);
+                m_ReferenceSpline.m_CurvePoints.Add(new Vector3(lPos.x, 0, lPos.z));
+            }
+
+            Vector3[] lSplinePoints = m_ReferenceSpline.Generate(m_PathSplineSubdivisions);
+            m_PathRenderer.positionCount = lSplinePoints.Length;
+            m_PathRenderer.SetPositions(lSplinePoints);
+
+            m_PathRenderer.gameObject.SetActive(true);
+
+            m_RTCam.Render();
+        }
+
+        mNeedToCompute = false;
+    }
+
+
+    public void SetNumberOfColumns(string pNumberOfColumns)
+    {
+        m_MazeGeneratorManager.SetNumberOfColumns(pNumberOfColumns);
+    }
+
+    public void SetNumberOfRows(string pNumberOfRows)
+    {
+        m_MazeGeneratorManager.SetNumberOfRows(pNumberOfRows);
+    }
+
+    public void SetShapeType(int pShapeType)
+    {
+        m_MazeGeneratorManager.SetShapeType(pShapeType);
+    }
+
+    public void SetAlgorithm(int pAlgorithmIndex)
+    {
+        m_MazeGeneratorManager.SetAlgorithm(pAlgorithmIndex);
+    }
+
+    public void SetProgressiveGeneration(bool pProgressiveGeneration)
+    {
+        m_MazeGeneratorManager.SetProgressiveGeneration(pProgressiveGeneration);
+    }
+
+    public void SetCorridorPseudoLength(string pCorridorPseudoLength)
+    {
+        m_MazeGeneratorManager.SetCorridorPseudoLength(pCorridorPseudoLength);
+    }
+
+    public void SetNumberOfConnectionsPerSecond(string pNumberOfConnectionsPerSecond)
+    {
+        m_MazeGeneratorManager.SetNumberOfConnectionsPerSecond(pNumberOfConnectionsPerSecond);
     }
 }

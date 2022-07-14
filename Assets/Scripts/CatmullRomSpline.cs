@@ -5,7 +5,7 @@ using UnityEngine;
 
 // Draws a catmull-rom spline in the scene view,
 // along the child objects of the transform of this component
-public class CatmullRomSpline : MonoBehaviour
+public class CatmullRomSpline
 {
 
 	[Range(0, 1)] public float alpha = 0.5f;
