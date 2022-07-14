@@ -106,23 +106,30 @@ public class PlayerControl : MonoBehaviour
             m_Rigidbody.transform.Translate(lFinalMoveVector, Space.World);
         }
 
+#if false//for VR
         //Put values To Zero
         m_MovingInput = Vector2.zero;
         m_LookInput = Vector2.zero;
-
+#endif
     }
 
     public void moveInputs(InputAction.CallbackContext pContext)
     {
+#if false//for VR
         if (pContext.phase == InputActionPhase.Performed)
         {
             m_MovingInput = pContext.action.ReadValue<Vector2>();// new Vector2(pContext.action.ReadValue<Vector2>().x , UnityEngine.UIElements.Experimental.Easing.InQuad(pContext.action.ReadValue<Vector2>().y)*Mathf.Sign(pContext.action.ReadValue<Vector2>().y));
             //Debug.Log($"Moving input change : {m_MovingInput} at frame {Time.frameCount} with ID {pContext.action.id}");
         }
+        //Debug.Log($"Moving input change : {m_MovingInput} at frame {Time.frameCount} with ID {pContext.action.id}");
+#else
+        m_MovingInput = pContext.action.ReadValue<Vector2>();
+#endif
     }
 
     public void lookInputs(InputAction.CallbackContext pContext)
     {
+#if false//for VR
         if (pContext.phase == InputActionPhase.Performed)
         {
             m_LookInput = pContext.action.ReadValue<Vector2>();
@@ -132,6 +139,10 @@ public class PlayerControl : MonoBehaviour
         {
             //Debug.Log($"Context Phase : {pContext.}");
         }
+        //Debug.Log($"Looking input change : {pContext.action.ReadValue<Vector2>()} at frame {Time.frameCount} with ID {pContext.action.id}");
+#else
+        m_LookInput = pContext.action.ReadValue<Vector2>();
+#endif
     }
 
 }

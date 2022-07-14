@@ -34,6 +34,12 @@ public class LabyrinthSpawner : MonoBehaviour
     public GameObject m_StartingCheckpoint = null;
     public GameObject m_EndingCheckpoint  = null;
 
+    public LineRenderer m_PathRenderer = null;
+    public CatmullRomSpline m_ReferenceSpline = null;
+
+    public int m_PathSplineSubdivisions = 10;
+    public float m_PathTension = 0.5f;
+
     Labyrinth mInternalRepresentation;
     MazeGenerator mMazeGenerator = null;
 
@@ -122,6 +128,11 @@ public class LabyrinthSpawner : MonoBehaviour
 
         mNeedToCompute = true;
         mFirstPass = true;
+
+        if (m_PathRenderer != null)
+        {
+            m_PathRenderer.gameObject.SetActive(false);
+        }
 
         if (m_Room1 != null)
         {
@@ -278,13 +289,13 @@ public class LabyrinthSpawner : MonoBehaviour
 
                 if (!mFirstPass)
                 {
-                    if (m_StartingCheckpoint != null && m_EndingCheckpoint != null)
-                    {
-                        m_StartingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
-                        m_EndingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
-                        updateRoomVisibility(mStartingNode.mIndex, m_Room1);
-                        updateRoomVisibility(mEndingNode.mIndex, m_Room2);
-                    }
+                    //if (m_StartingCheckpoint != null && m_EndingCheckpoint != null)
+                    //{
+                    //    m_StartingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
+                    //    m_EndingCheckpoint.transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
+                    //    updateRoomVisibility(mStartingNode.mIndex, m_Room1);
+                    //    updateRoomVisibility(mEndingNode.mIndex, m_Room2);
+                    //}
                 }
                 else
                 {
@@ -296,18 +307,43 @@ public class LabyrinthSpawner : MonoBehaviour
                 updateRoomVisibility(lNodeIndex1, m_Room1);
                 updateRoomVisibility(lNodeIndex2, m_Room2);
 
-                if (m_StartingCheckpoint != null && m_EndingCheckpoint != null)
-                {
-                    mInternalRepresentation.findMaximumPath(out mStartingNode, out mEndingNode);
-                    m_StartingCheckpoint.transform.position = mMazeGenerator.getPosition(mStartingNode.mIndex);
-                    m_EndingCheckpoint.transform.position = mMazeGenerator.getPosition(mEndingNode.mIndex);
-                }
+                
 
                 m_RTCam.Render();
             }
 
             if ( !mNeedToCompute )
             {
+                if (m_StartingCheckpoint != null && m_EndingCheckpoint != null)
+                {
+                    //List<Node> lCompletePath;
+                    mInternalRepresentation.findMaximumPathExtremities(out mStartingNode, out mEndingNode);
+                    m_StartingCheckpoint.transform.position = mMazeGenerator.getPosition(mStartingNode.mIndex);
+                    m_EndingCheckpoint.transform.position = mMazeGenerator.getPosition(mEndingNode.mIndex);
+                }
+
+                List<Node> lLabyrinthPath;
+                mInternalRepresentation.findMaximumCompletePath(mStartingNode, mEndingNode, out lLabyrinthPath);
+
+                if (m_PathRenderer != null)
+                {
+                    m_ReferenceSpline.m_CurvePoints.Clear();
+                    m_ReferenceSpline.alpha = m_PathTension;
+                    for (int  i = 0; i < lLabyrinthPath.Count; ++i)
+                    {
+                        Vector3 lPos = mMazeGenerator.getPosition(lLabyrinthPath[i].mIndex);
+                        m_ReferenceSpline.m_CurvePoints.Add(new Vector3(lPos.x, 0, lPos.z));
+                    }
+
+                    Vector3[] lSplinePoints = m_ReferenceSpline.Generate(m_PathSplineSubdivisions);
+                    m_PathRenderer.positionCount = lSplinePoints.Length;
+                    m_PathRenderer.SetPositions(lSplinePoints);
+
+                    m_PathRenderer.gameObject.SetActive(true);
+
+                    m_RTCam.Render();
+                }
+
                 mMazeGenerator = null;
                 mNeedToCompute = false;
             }
