@@ -220,16 +220,19 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ab818ecdc70a2ce4c892e983aabec34a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_Shape: 1
-  m_NumberOfColumns: 10
-  m_NumberOfRows: 10
-  m_ProgressiveGeneration: 0
-  m_AlgorithmIndex: 2
-  m_AlgorithmCorridorPseudoLength: 50
-  m_NumberOfConnectionsPerSeconds: 50
+  m_MazeGeneratorManager:
+    m_Shape: 1
+    m_NumberOfColumns: 5
+    m_NumberOfRows: 5
+    m_ProgressiveGeneration: 0
+    m_AlgorithmIndex: 1
+    m_AlgorithmCorridorPseudoLength: 4
+    m_NumberOfConnectionsPerSeconds: 50
   m_SquareRoomPrefab: {fileID: 9062704152555679380, guid: 21e50a8fa53e33844adacebca19db60a, type: 3}
   m_HexagonalRoomPrefab: {fileID: 8137593934016169205, guid: 4846e1135283bf74b898928c6d2cafb2, type: 3}
   m_Player: {fileID: 2049443401}
+  m_Starting: {fileID: 906998757196776968, guid: aba178f809e6dbf418033c1cdd2b03bd, type: 3}
+  m_Goal: {fileID: 6400858010210588776, guid: f90e8fadb6e11e742b9b31510cc6c04a, type: 3}
   m_RoomsVisibilityUpdater: {fileID: 55220069}
   m_MapCamAdapter: {fileID: 0}
 --- !u!4 &55220071
@@ -940,6 +943,7 @@ GameObject:
   - component: {fileID: 2049443405}
   - component: {fileID: 2049443407}
   - component: {fileID: 2049443406}
+  - component: {fileID: 2049443408}
   m_Layer: 0
   m_Name: XRRig
   m_TagString: Untagged
@@ -1150,3 +1154,16 @@ Rigidbody:
   m_Interpolate: 0
   m_Constraints: 112
   m_CollisionDetection: 0
+--- !u!114 &2049443408
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2049443401}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47b2b8e7451674d48a288243a0a87243, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  mLabyrinthGenerator: {fileID: 55220070}

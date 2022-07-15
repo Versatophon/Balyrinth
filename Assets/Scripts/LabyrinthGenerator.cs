@@ -49,14 +49,20 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
         //GameObject lObjectToInstantiate = null;
 
         m_RoomsVisibilityUpdater = GetComponent<RoomsVisibilityUpdater>();
+        
+        m_MazeGeneratorManager?.SetGenerationListener(this);
+        InitiateGeneration();
+    }
 
+    void SelectPrefabToInstantiate()
+    {
         switch (m_MazeGeneratorManager.m_Shape)
         {
             case Balyrinth.Utilities.LabyShape.Rectangle:
-                m_RoomsVisibilityUpdater.mObjectToInstantiate = m_SquareRoomPrefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiate = m_SquareRoomPrefab;
                 break;
             case Balyrinth.Utilities.LabyShape.HoneyComb:
-                m_RoomsVisibilityUpdater.mObjectToInstantiate = m_HexagonalRoomPrefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiate = m_HexagonalRoomPrefab;
                 break;
             case Balyrinth.Utilities.LabyShape.Sphere:
                 mNeedToCompute = false;
@@ -67,9 +73,6 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
                 return;
                 break;
         }
-
-        m_MazeGeneratorManager?.SetGenerationListener(this);
-        InitiateGeneration();
     }
 
     void RecomptueMapCamBounds()
@@ -182,6 +185,7 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
         mNeedToCompute = true;
 
+        SelectPrefabToInstantiate();
 
         //SpawnPlayer();
 
