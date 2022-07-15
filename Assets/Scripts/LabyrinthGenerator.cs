@@ -22,6 +22,7 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
     public GameObject m_SquareRoomPrefab = null;
     public GameObject m_HexagonalRoomPrefab = null;
+    public GameObject m_HypermazeRoomPrefab = null;
 
     public GameObject m_Player = null;
     public GameObject m_Starting = null;
@@ -30,9 +31,10 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
     public RoomsVisibilityUpdater m_RoomsVisibilityUpdater = null;
     public AdaptViewportToContent m_MapCamAdapter = null;
 
+    public OrbitalManipulator m_OrbitalManipulator = null;
+
     GameObject m_StartCP = null;
     GameObject m_GoalCP = null;
-
 
     //Labyrinth mInternalRepresentation;
     //MazeGenerator mMazeGenerator = null;
@@ -49,14 +51,23 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
         //GameObject lObjectToInstantiate = null;
 
         m_RoomsVisibilityUpdater = GetComponent<RoomsVisibilityUpdater>();
+        
+        m_MazeGeneratorManager?.SetGenerationListener(this);
+        InitiateGeneration();
+    }
 
+    void SelectPrefabToInstantiate()
+    {
         switch (m_MazeGeneratorManager.m_Shape)
         {
             case Balyrinth.Utilities.LabyShape.Rectangle:
-                m_RoomsVisibilityUpdater.mObjectToInstantiate = m_SquareRoomPrefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiate = m_SquareRoomPrefab;
                 break;
             case Balyrinth.Utilities.LabyShape.HoneyComb:
-                m_RoomsVisibilityUpdater.mObjectToInstantiate = m_HexagonalRoomPrefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiate = m_HexagonalRoomPrefab;
+                break;
+            case Balyrinth.Utilities.LabyShape.Hypermaze:
+                m_RoomsVisibilityUpdater.ObjectToInstantiate = m_HypermazeRoomPrefab;
                 break;
             case Balyrinth.Utilities.LabyShape.Sphere:
                 mNeedToCompute = false;
@@ -67,12 +78,9 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
                 return;
                 break;
         }
-
-        m_MazeGeneratorManager?.SetGenerationListener(this);
-        InitiateGeneration();
     }
 
-    void RecomptueMapCamBounds()
+    void RecomputeMapCamBounds()
     {
         if (m_MapCamAdapter != null)
         {
@@ -134,6 +142,24 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
     // Update is called once per frame
     void Update()
     {
+        if(mNeedToCompute)
+        {
+            int[] lUpdatedNodes = m_MazeGeneratorManager.UpdateGeneration();
+
+            foreach (int lNodeIndex in lUpdatedNodes)
+            {
+                GameObject lRoom = m_Rooms[lNodeIndex];
+                RoomConnectionsBehaviour lRoomConnectionsBehaviour = lRoom.GetComponent<RoomConnectionsBehaviour>();
+
+                lRoom.SetActive(true);
+
+                bool[] lLocalConnections = m_MazeGeneratorManager.GetConnectedDirections(lNodeIndex);
+                lRoomConnectionsBehaviour.m_ConnectionsActive = lLocalConnections.ToList();
+
+                lRoomConnectionsBehaviour.Updatevisibility();
+            }
+
+        }
     }
 
     public void SetNumberOfColumns(string pNumberOfColumns)
@@ -166,9 +192,11 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
     void SpawnPlayer()
     {
-        m_Player.transform.position = m_MazeGeneratorManager.GetObjectPosition(m_MazeGeneratorManager.GetStartingNodeIndex()) + new Vector3(0, (UnityEngine.XR.Management.XRGeneralSettings.Instance?.Manager?.activeLoader == null ? 1.5f : 0), 0);
-
-        m_Player.transform.rotation = Quaternion.identity;
+        if (m_Player != null)
+        {
+            m_Player.transform.position = m_MazeGeneratorManager.GetObjectPosition(m_MazeGeneratorManager.GetStartingNodeIndex()) + new Vector3(0, (UnityEngine.XR.Management.XRGeneralSettings.Instance?.Manager?.activeLoader == null ? 1.5f : 0), 0);
+            m_Player.transform.rotation = Quaternion.identity;
+        }
     }
 
     public void InitiateGeneration()
@@ -182,6 +210,7 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
         mNeedToCompute = true;
 
+        SelectPrefabToInstantiate();
 
         //SpawnPlayer();
 
@@ -199,10 +228,90 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
         m_RoomsVisibilityUpdater.m_MazeGenerator = m_MazeGeneratorManager.GetMazeGenerator();
 
         //m_TimeCounter = 0;
+
+
+        if (m_MazeGeneratorManager.m_Shape == Balyrinth.Utilities.LabyShape.Hypermaze)
+        {
+            foreach (GameObject lGo in m_Rooms)
+            {
+                GameObject.DestroyImmediate(lGo);
+            }
+
+            m_Rooms.Clear();
+
+            Vector3 lMinPosition = new Vector3(float.MaxValue, float.MaxValue, float.MaxValue);
+            Vector3 lMaxPosition = new Vector3(float.MinValue, float.MinValue, float.MinValue);
+
+            for (int i = 0; i < m_MazeGeneratorManager.GetNumberOfNodes(); ++i)
+            {
+                Vector3 lPosition = m_MazeGeneratorManager.GetObjectPosition(i);
+                GameObject lRoom = GameObject.Instantiate(m_HypermazeRoomPrefab, lPosition, Quaternion.identity, transform);
+                m_Rooms.Add(lRoom);
+            
+                lRoom.SetActive(false);
+                
+                if( lMaxPosition.x < lPosition.x )
+                {
+                    lMaxPosition.x = lPosition.x;
+                }
+
+                if (lMaxPosition.y < lPosition.y)
+                {
+                    lMaxPosition.y = lPosition.y;
+                }
+
+                if (lMaxPosition.z < lPosition.z)
+                {
+                    lMaxPosition.z = lPosition.z;
+                }
+
+                if (lMinPosition.x > lPosition.x)
+                {
+                    lMinPosition.x = lPosition.x;
+                }
+
+                if (lMinPosition.y > lPosition.y)
+                {
+                    lMinPosition.y = lPosition.y;
+                }
+
+                if (lMinPosition.z > lPosition.z)
+                {
+                    lMinPosition.z = lPosition.z;
+                }
+
+
+                //RoomConnectionsBehaviour lRoomConnectionsBehaviour = lRoom.GetComponent<RoomConnectionsBehaviour>();
+                //
+                //bool[] lLocalConnections = m_MazeGeneratorManager.GetConnectedDirections(i);
+                //
+                //lRoomConnectionsBehaviour.m_ConnectionsActive = lLocalConnections.ToList();
+                //
+                //lRoomConnectionsBehaviour.Updatevisibility();
+            }
+
+            if(m_OrbitalManipulator != null)
+            {
+                m_OrbitalManipulator.transform.position = (lMinPosition + lMaxPosition) * 0.5f;
+
+                m_OrbitalManipulator.SetCameraStartupDistance((lMaxPosition - lMinPosition).magnitude);
+            }
+
+        }
+
+
+
+
+
+        
     }
 
     public void GenerationDone()
     {
+        
+
+
+
         if (m_StartCP == null)
         {
             m_StartCP = GameObject.Instantiate(m_Starting);

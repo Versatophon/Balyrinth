@@ -8,8 +8,27 @@ public class RoomsVisibilityUpdater : MonoBehaviour
 
     public GameObject m_SquareRoomPrefab = null;
     public GameObject m_HexagonalRoomPrefab = null;
+    public GameObject m_HypermazeRoomPrefab = null;
 
-    public GameObject mObjectToInstantiate = null;
+    private GameObject mObjectToInstantiate;
+
+    public GameObject ObjectToInstantiate
+    {
+        get
+        { 
+            return mObjectToInstantiate;
+        }
+        
+        set 
+        { 
+            mObjectToInstantiate = value;
+            foreach (GameObject lGO in m_Rooms)
+            {
+                GameObject.Destroy(lGO);
+            }
+            m_Rooms.Clear();
+        }
+    }
 
     public MazeGenerator m_MazeGenerator = null;
 

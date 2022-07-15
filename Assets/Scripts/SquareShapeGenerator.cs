@@ -61,7 +61,7 @@ public class SquareShapeGenerator:ShapeGeneratorInterface
     int mWidth = 10;
     int mHeight = 10;
 
-    public Labyrinth generate(int pWidth = 10, int pHeight = 10)
+    public Labyrinth generate(int pWidth = 10, int pHeight = 10, int pDepth = 10)
     {
         mWidth = pWidth;
         mHeight = pHeight;
@@ -180,5 +180,10 @@ public class SquareShapeGenerator:ShapeGeneratorInterface
     public int getHeight()
     {
         return mHeight;
+    }
+
+    public int getDepth()
+    {
+        return 0;
     }
 }

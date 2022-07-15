@@ -1785,7 +1785,6 @@ MonoBehaviour:
   m_PlayerViewer: {fileID: 931222196}
   m_SquareRoomPrefab: {fileID: 9062704152555679380, guid: 21e50a8fa53e33844adacebca19db60a, type: 3}
   m_HexagonalRoomPrefab: {fileID: 8137593934016169205, guid: 4846e1135283bf74b898928c6d2cafb2, type: 3}
-  mObjectToInstantiate: {fileID: 0}
 --- !u!4 &2140441598 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5766404762614852782, guid: 4846e1135283bf74b898928c6d2cafb2, type: 3}

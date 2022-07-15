@@ -8,6 +8,7 @@ public class RoomConnectionsBehaviour : MonoBehaviour
     public bool m_UpdateInEditMode = false;
 
     public List<GameObject> m_WallsObjects = new List<GameObject>();
+    public List<GameObject> m_AntiwallsObjects = new List<GameObject>();
     public GameObject m_Ceiling = null;
 
     public List<bool> m_ConnectionsActive = new List<bool>();
@@ -25,13 +26,27 @@ public class RoomConnectionsBehaviour : MonoBehaviour
     public void Updatevisibility()
     {
         bool lCeilingVisibility = true;
-        for (int i = 0; i < m_ConnectionsActive.Count; ++i)
+        for (int i = 0; i < Mathf.Min(m_ConnectionsActive.Count, m_WallsObjects.Count); ++i)
         {
-            m_WallsObjects[i]?.SetActive(!m_ConnectionsActive[i]);
+            if (m_WallsObjects[i] != null)
+            {
+                m_WallsObjects[i]?.SetActive(!m_ConnectionsActive[i]);
+            }
             lCeilingVisibility &= !m_ConnectionsActive[i];
         }
 
-        m_Ceiling?.SetActive(lCeilingVisibility);
+        for (int i = 0; i < Mathf.Min(m_ConnectionsActive.Count, m_AntiwallsObjects.Count) ; ++i)
+        {
+            if (m_AntiwallsObjects[i] != null)
+            {
+                m_AntiwallsObjects[i]?.SetActive(m_ConnectionsActive[i]);
+            }
+        }
+
+        if (m_Ceiling != null)
+        {
+            m_Ceiling?.SetActive(lCeilingVisibility);
+        }
     }
 
     // Update is called once per frame

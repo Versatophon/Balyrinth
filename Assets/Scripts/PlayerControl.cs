@@ -20,8 +20,11 @@ public class PlayerControl : MonoBehaviour
 
     private Rigidbody m_Rigidbody;
 
-    private Vector2 m_MovingInput = Vector2.zero;
+    private Vector2 m_MoveInput = Vector2.zero;
     private Vector2 m_LookInput = Vector2.zero;
+
+    private bool m_CleanMoving = false;
+    private bool m_CleanLooking = false;
 
 #if USE_LEGACY_INPUT
     List<UnityEngine.XR.InputDevice> mLeftInputDevices;
@@ -71,15 +74,15 @@ public class PlayerControl : MonoBehaviour
 
         if (m_FPSMoving)
         {
-            lMoveVector.z = m_MovingInput.y*lMoveDistance;
-            lMoveVector.x = m_MovingInput.x*lMoveDistance;
+            lMoveVector.z = m_MoveInput.y*lMoveDistance;
+            lMoveVector.x = m_MoveInput.x*lMoveDistance;
 
             transform.Rotate(m_LookInput.x * m_AngularSpeed * Time.deltaTime * Vector3.up);
         }
         else
         {
-            lMoveVector.z = m_MovingInput.y * lMoveDistance;
-            lMoveVector.x = m_MovingInput.x * lMoveDistance;
+            lMoveVector.z = m_MoveInput.y * lMoveDistance;
+            lMoveVector.x = m_MoveInput.x * lMoveDistance;
         }
 
         Vector3 lFinalMoveVector;// = transform.TransformDirection(lMoveVector) * lMoveDistance;
@@ -106,6 +109,20 @@ public class PlayerControl : MonoBehaviour
             m_Rigidbody.transform.Translate(lFinalMoveVector, Space.World);
         }
 
+
+        if ( m_CleanMoving )
+        {
+            m_CleanMoving = false;
+            m_MoveInput = Vector2.zero;
+        }
+
+
+        if ( m_CleanLooking )
+        {
+            m_CleanLooking = false;
+            m_LookInput = Vector2.zero;
+        }
+
 #if false//for VR
         //Put values To Zero
         m_MovingInput = Vector2.zero;
@@ -123,7 +140,20 @@ public class PlayerControl : MonoBehaviour
         }
         //Debug.Log($"Moving input change : {m_MovingInput} at frame {Time.frameCount} with ID {pContext.action.id}");
 #else
-        m_MovingInput = pContext.action.ReadValue<Vector2>();
+        //Debug.Log($"Moving input change : {pContext.valueType} with value {pContext.action.ReadValue<Vector2>()} at frame {Time.frameCount} with ID {pContext.action.id} and phased as {pContext.phase}");
+
+        if (pContext.control.device.layout == "Keyboard")
+        {
+            m_MoveInput = pContext.action.ReadValue<Vector2>();
+        }
+        else
+        {
+            if (pContext.phase == InputActionPhase.Performed)
+            {
+                m_MoveInput = pContext.action.ReadValue<Vector2>();
+                m_CleanMoving = true;
+            }
+        }
 #endif
     }
 
@@ -141,7 +171,22 @@ public class PlayerControl : MonoBehaviour
         }
         //Debug.Log($"Looking input change : {pContext.action.ReadValue<Vector2>()} at frame {Time.frameCount} with ID {pContext.action.id}");
 #else
-        m_LookInput = pContext.action.ReadValue<Vector2>();
+        //Debug.Log($"Looking input change : {pContext.valueType} with value {pContext.action.ReadValue<Vector2>()} at frame {Time.frameCount} with ID {pContext.action.id} and phased as {pContext.phase}");
+        //Debug.Log($"Looking input change : {m_LookInput} at frame {Time.frameCount} with ID {pContext.action.id}");
+
+        if (pContext.control.device.layout == "Keyboard")
+        {
+            m_LookInput = pContext.action.ReadValue<Vector2>();
+        }
+        else
+        {
+            if (pContext.phase == InputActionPhase.Performed)
+            {
+                m_LookInput = pContext.action.ReadValue<Vector2>();
+                m_CleanLooking = true;
+            }
+        }
+
 #endif
     }
 

@@ -35,7 +35,7 @@ public class MazeGenerator
 
     int mCurrentDirection = 0;// CardinalDirection.East;
 
-    public MazeGenerator(Labyrinth pLaby, Balyrinth.Utilities.LabyShape pShape, int pWidth, int pHeight)
+    public MazeGenerator(Labyrinth pLaby, Balyrinth.Utilities.LabyShape pShape, int pWidth, int pHeight, int pDepth = 1)
     {
         mShape = pShape;
 
@@ -46,6 +46,9 @@ public class MazeGenerator
                 break;
             case Balyrinth.Utilities.LabyShape.HoneyComb:
                 mShapeGenerator = new HoneycombShapeGenerator(pWidth, pHeight);
+                break;
+            case Balyrinth.Utilities.LabyShape.Hypermaze:
+                mShapeGenerator = new HyperMazeShapeGenerator(pWidth, pHeight, pDepth);
                 break;
         }
 
@@ -96,10 +99,10 @@ public class MazeGenerator
                     lIsDone = generateStep2(ref lDummyIndex1, ref lDummyIndex2);
                     break;
                 case 2:
-                    lIsDone = generateStep3(ref lDummyIndex1, ref lDummyIndex2, pWidth, pHeight);
+                    lIsDone = generateStep3(ref lDummyIndex1, ref lDummyIndex2/*, pWidth, pHeight*/);
                     break;
                 case 3:
-                    lIsDone = generateStep4(ref lDummyIndex1, ref lDummyIndex2, pWidth, pHeight, pCorridorPseudoLength);
+                    lIsDone = generateStep4(ref lDummyIndex1, ref lDummyIndex2/*, pWidth, pHeight*/, pCorridorPseudoLength);
                     break;
             }
         }
@@ -288,7 +291,7 @@ public class MazeGenerator
     }
 
 
-    private Node getConnectableNodeFromDirection(Node pCurrentNode, int pDirection, int pLabyrinthWidth, int pLabyrinthHeight)
+    private Node getConnectableNodeFromDirection(Node pCurrentNode, int pDirection/*, int pLabyrinthWidth, int pLabyrinthHeight*/)
     {
 
         int lNextNodeIndex = mShapeGenerator.getNextCellIndex(pCurrentNode.mIndex, pDirection);
@@ -347,7 +350,7 @@ public class MazeGenerator
     }
 
     //Pyramidal Generator
-    public bool generateStep3(ref int pNodeIndex1, ref int pNodeIndex2, int pLabyrinthWidth, int pLabyrinthHeight)
+    public bool generateStep3(ref int pNodeIndex1, ref int pNodeIndex2/*, int pLabyrinthWidth, int pLabyrinthHeight*/)
     {
         //bool lIsDone = false;
 
@@ -385,12 +388,12 @@ public class MazeGenerator
             }
             else
             {
-                Node lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection, pLabyrinthWidth, pLabyrinthHeight);
+                Node lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection/*, pLabyrinthWidth, pLabyrinthHeight*/);
 
                 while (lNewConnectedNode == null)
                 {
                     mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.GetNumberOfDirections());
-                    lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection, pLabyrinthWidth, pLabyrinthHeight);
+                    lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection/*, pLabyrinthWidth, pLabyrinthHeight*/);
                 }
 
                 //Node lNewConnectedNode = mPotentialConnections[mRandomGenerator.Next(mPotentialConnections.Count)];
@@ -426,7 +429,7 @@ public class MazeGenerator
         return (mNumConnectionsPerformed == (mLabyrinth.mNodes.Count - 1));
     }
 
-    public bool generateStep4(ref int pNodeIndex1, ref int pNodeIndex2, int pLabyrinthWidth, int pLabyrinthHeight, int m_AlgorithmCorridorPseudoLength)
+    public bool generateStep4(ref int pNodeIndex1, ref int pNodeIndex2/*, int pLabyrinthWidth, int pLabyrinthHeight*/, int m_AlgorithmCorridorPseudoLength)
     {
         //bool lIsDone = false;
 
@@ -470,12 +473,12 @@ public class MazeGenerator
                     mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.GetNumberOfDirections());
                 }
 
-                Node lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection, pLabyrinthWidth, pLabyrinthHeight);
+                Node lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection/*, pLabyrinthWidth, pLabyrinthHeight*/);
 
                 while (lNewConnectedNode == null)
                 {
                     mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.GetNumberOfDirections());
-                    lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection, pLabyrinthWidth, pLabyrinthHeight);
+                    lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection/*, pLabyrinthWidth, pLabyrinthHeight*/);
                 }
 
                 //Node lNewConnectedNode = mPotentialConnections[mRandomGenerator.Next(mPotentialConnections.Count)];

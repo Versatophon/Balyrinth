@@ -9,7 +9,7 @@ public interface ShapeGeneratorInterface
 {
     public int GetNumberOfDirections();
 
-    public Labyrinth generate(int pWidth = 10, int pHeight = 10);
+    public Labyrinth generate(int pWidth = 10, int pHeight = 10, int pDepth = 10);
 
     public int getNextCellIndex(int pCurrentcellIndex, int pDirection);
     
@@ -24,4 +24,6 @@ public interface ShapeGeneratorInterface
     public int getWidth();
 
     public int getHeight();
+
+    public int getDepth();
 }

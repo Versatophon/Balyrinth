@@ -581,12 +581,12 @@ MonoBehaviour:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 8137593934016169205}
-  m_Enabled: 0
+  m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: eff8d9c513034b24cb967ee35788a5ce, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UpdateInEditMode: 0
+  m_UpdateInEditMode: 1
   m_WallsObjects:
   - {fileID: 7134845788833565542}
   - {fileID: 8057088782397172599}
@@ -594,6 +594,7 @@ MonoBehaviour:
   - {fileID: 3229048621213915370}
   - {fileID: 5541209610993317844}
   - {fileID: 3198620023766838390}
+  m_AntiwallsObjects: []
   m_Ceiling: {fileID: 2226824098603872908}
   m_ConnectionsActive: 000000000000
 --- !u!1 &9053330617801259705
@@ -1211,7 +1212,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 919132149155446097, guid: 55cbc2611da84cc4cafc983893887198, type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_AddedGameObjects: []
@@ -1558,6 +1559,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 92c7a7948f0543e419e34af853831bdb, type: 3}
       propertyPath: m_Name
       value: SouthWest
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 92c7a7948f0543e419e34af853831bdb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_AddedGameObjects:
@@ -2100,6 +2105,10 @@ PrefabInstance:
     - target: {fileID: 919132149155446097, guid: 92c7a7948f0543e419e34af853831bdb, type: 3}
       propertyPath: m_Name
       value: NorthWest
+      objectReference: {fileID: 0}
+    - target: {fileID: 919132149155446097, guid: 92c7a7948f0543e419e34af853831bdb, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_AddedGameObjects:

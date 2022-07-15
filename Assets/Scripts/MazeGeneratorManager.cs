@@ -10,6 +10,7 @@ public class MazeGeneratorManager
 
     public int m_NumberOfColumns = 10;
     public int m_NumberOfRows = 10;
+    public int m_NumberOfFloors = 10;
 
     public bool m_ProgressiveGeneration = false;
 
@@ -43,6 +44,11 @@ public class MazeGeneratorManager
         mMazeGenerationListener = pGenerationListener;
     }
 
+    public bool IsGenerationPerforming()
+    {
+        return mIsGenerationPerforming;
+    }
+
     public void SetNumberOfColumns(string pNumberOfColumns)
     {
         int.TryParse(pNumberOfColumns, out m_NumberOfColumns);
@@ -51,6 +57,11 @@ public class MazeGeneratorManager
     public void SetNumberOfRows(string pNumberOfRows)
     {
         int.TryParse(pNumberOfRows, out m_NumberOfRows);
+    }
+
+    public void SetNumberOfFloors(string pNumberOfFloors)
+    {
+        int.TryParse(pNumberOfFloors, out m_NumberOfFloors);
     }
 
     public void SetShapeType(int pShapeType)
@@ -101,6 +112,11 @@ public class MazeGeneratorManager
         return mEndingNode.mIndex;
     }
 
+    public int GetNumberOfNodes()
+    {
+        return mInternalRepresentation.mNodes.Count;
+    }
+
     //TODO: managing 3D position should not be in this class
     public Vector3 GetObjectPosition(int pNodeIndex)
     {
@@ -132,13 +148,19 @@ public class MazeGeneratorManager
                     mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
                 }
                 break;
+            case Balyrinth.Utilities.LabyShape.Hypermaze:
+                {
+                    ShapeGeneratorInterface lShapeGeneratorInterface = new HyperMazeShapeGenerator(m_NumberOfColumns, m_NumberOfRows, m_NumberOfFloors);
+                    mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows, m_NumberOfFloors);
+                }
+                break;
             case Balyrinth.Utilities.LabyShape.Sphere:
                 break;
             case Balyrinth.Utilities.LabyShape.Torus:
                 break;
         }
 
-        mMazeGenerator = new MazeGenerator(mInternalRepresentation, m_Shape, m_NumberOfColumns, m_NumberOfRows);
+        mMazeGenerator = new MazeGenerator(mInternalRepresentation, m_Shape, m_NumberOfColumns, m_NumberOfRows, m_NumberOfFloors);
 
         if (!m_ProgressiveGeneration)
         {
@@ -192,11 +214,11 @@ public class MazeGeneratorManager
                 }
                 else if (m_AlgorithmIndex == 2)
                 {
-                    mIsGenerationPerforming = !mMazeGenerator.generateStep3(ref lNodeIndex1, ref lNodeIndex2, m_NumberOfColumns, m_NumberOfRows);
+                    mIsGenerationPerforming = !mMazeGenerator.generateStep3(ref lNodeIndex1, ref lNodeIndex2/*, m_NumberOfColumns, m_NumberOfRows*/);
                 }
                 else if (m_AlgorithmIndex == 3)
                 {
-                    mIsGenerationPerforming = !mMazeGenerator.generateStep4(ref lNodeIndex1, ref lNodeIndex2, m_NumberOfColumns, m_NumberOfRows, m_AlgorithmCorridorPseudoLength);
+                    mIsGenerationPerforming = !mMazeGenerator.generateStep4(ref lNodeIndex1, ref lNodeIndex2/*, m_NumberOfColumns, m_NumberOfRows*/, m_AlgorithmCorridorPseudoLength);
                 }
 
                 lModifiedNodeIndices.Add(lNodeIndex1);

@@ -13,6 +13,7 @@ namespace Balyrinth
         {
             Rectangle,
             HoneyComb,
+            Hypermaze,
             Torus,
             Sphere,
         }
