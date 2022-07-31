@@ -241,15 +241,19 @@ public class RoomsVisibilityUpdater : MonoBehaviour
     void updateRoomVisibility(int pRoomIndex, GameObject pRoom)
     {
 
-        RoomConnectionsBehaviour lRoom = pRoom.GetComponent<RoomConnectionsBehaviour>();
+        RoomConnectionInterface lRoom = pRoom.GetComponent<RoomConnectionInterface>();
         lRoom.resetVisibility();
         Node lNode = m_MazeGenerator.getNode(pRoomIndex);
-        lRoom.transform.position = m_MazeGenerator.getPosition(pRoomIndex);
+        pRoom.transform.position = m_MazeGenerator.getPosition(pRoomIndex);
 
+        List<bool> lConnections = new List<bool>();
         for (int i = 0; i < m_MazeGenerator.mShapeGenerator.GetNumberOfDirections(); ++i)
         {
-            lRoom.m_ConnectionsActive[i] = m_MazeGenerator.areConnected(pRoomIndex, m_MazeGenerator.mShapeGenerator.getNextCellIndex(pRoomIndex, i));
+            lConnections.Add(m_MazeGenerator.areConnected(pRoomIndex, m_MazeGenerator.mShapeGenerator.getNextCellIndex(pRoomIndex, i)));
+            //lRoom.m_ConnectionsActive[i] = ;
         }
+
+        lRoom.SetConnections(lConnections);
       
         lRoom.Updatevisibility();
     }

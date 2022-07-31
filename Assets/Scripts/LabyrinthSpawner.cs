@@ -41,11 +41,11 @@ public class LabyrinthSpawner : MonoBehaviour, MazeGenerationListener
 
     void updateRoomVisibility(int pRoomIndex, GameObject pRoom)
     {
-        RoomConnectionsBehaviour lRoom = pRoom.GetComponent<RoomConnectionsBehaviour>();
+        RoomConnectionInterface lRoom = pRoom.GetComponent<RoomConnectionInterface>();
         lRoom.resetVisibility();
 
-        lRoom.transform.position = m_MazeGeneratorManager.GetObjectPosition(pRoomIndex);
-        lRoom.m_ConnectionsActive = m_MazeGeneratorManager.GetConnectedDirections(pRoomIndex).ToList();
+        pRoom.transform.position = m_MazeGeneratorManager.GetObjectPosition(pRoomIndex);
+        lRoom.SetConnections(m_MazeGeneratorManager.GetConnectedDirections(pRoomIndex).ToList());
 
         lRoom.Updatevisibility();
     }
@@ -71,8 +71,8 @@ public class LabyrinthSpawner : MonoBehaviour, MazeGenerationListener
                     m_Rooms[i].SetActive(true);
                     m_Rooms[i].transform.position = m_MazeGeneratorManager.GetObjectPosition(lUpdatedRooms[i]);
 
-                    m_Rooms[i].GetComponent<RoomConnectionsBehaviour>().m_ConnectionsActive = m_MazeGeneratorManager.GetConnectedDirections(lUpdatedRooms[i]).ToList();
-                    m_Rooms[i].GetComponent<RoomConnectionsBehaviour>().Updatevisibility();
+                    m_Rooms[i].GetComponent<RoomConnectionInterface>().SetConnections(m_MazeGeneratorManager.GetConnectedDirections(lUpdatedRooms[i]).ToList());
+                    m_Rooms[i].GetComponent<RoomConnectionInterface>().Updatevisibility();
                 }
                 else
                 {

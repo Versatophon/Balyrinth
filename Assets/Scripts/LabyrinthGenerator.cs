@@ -122,19 +122,19 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
     void updateRoomVisibility(int pRoomIndex, GameObject pRoom)
     {
-        RoomConnectionsBehaviour lRoom = pRoom.GetComponent<RoomConnectionsBehaviour>();
+        RoomConnectionInterface lRoom = pRoom.GetComponent<RoomConnectionInterface>();
         lRoom.resetVisibility();
 
 
         //Node lNode = mMazeGenerator.getNode(pRoomIndex);
-        lRoom.transform.position = m_MazeGeneratorManager.GetObjectPosition(pRoomIndex);
+        pRoom.transform.position = m_MazeGeneratorManager.GetObjectPosition(pRoomIndex);
 
         //for (int i = 0; i < mMazeGenerator.mShapeGenerator.GetNumberOfDirections(); ++i)
         //{
         //    lRoom.m_ConnectionsActive[i] = mMazeGenerator.areConnected(pRoomIndex, mMazeGenerator.mShapeGenerator.getNextCellIndex(pRoomIndex, i));
         //}
 
-        lRoom.m_ConnectionsActive = m_MazeGeneratorManager.GetConnectedDirections(pRoomIndex).ToList();
+        lRoom.SetConnections(m_MazeGeneratorManager.GetConnectedDirections(pRoomIndex).ToList());
 
         lRoom.Updatevisibility();
     }
@@ -149,14 +149,14 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
             foreach (int lNodeIndex in lUpdatedNodes)
             {
                 GameObject lRoom = m_Rooms[lNodeIndex];
-                RoomConnectionsBehaviour lRoomConnectionsBehaviour = lRoom.GetComponent<RoomConnectionsBehaviour>();
+                RoomConnectionInterface lRoomConnections = lRoom.GetComponent<RoomConnectionInterface>();
 
                 lRoom.SetActive(true);
 
                 bool[] lLocalConnections = m_MazeGeneratorManager.GetConnectedDirections(lNodeIndex);
-                lRoomConnectionsBehaviour.m_ConnectionsActive = lLocalConnections.ToList();
+                lRoomConnections.SetConnections(lLocalConnections.ToList());
 
-                lRoomConnectionsBehaviour.Updatevisibility();
+                lRoomConnections.Updatevisibility();
             }
 
         }
@@ -234,7 +234,7 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
         {
             foreach (GameObject lGo in m_Rooms)
             {
-                GameObject.DestroyImmediate(lGo);
+                GameObject.Destroy(lGo);
             }
 
             m_Rooms.Clear();
