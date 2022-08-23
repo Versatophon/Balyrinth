@@ -1,107 +1,127 @@
-//#define USE_LEGACY_INPUT
-
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-
-
-
-public class PlayerControlHyperMaze : MonoBehaviour
+public class PanTiltControl : MonoBehaviour
 {
+    public float m_Pan = 0;
+    public float m_Tilt = 0;
 
-    public float m_Speed = 3;//m/s
+
+    public float m_MinTilt = -45;
+    public float m_MaxTilt = 45;
+
+
+    public float m_MouseSensitivity = 0.2f;
+
+    public float m_PlayerSpeed = 1;
     public float m_AngularSpeed = 120;//deg/s
+    //public Rigidbody m_PlayerRigidbody = null;
+    public ArtificialGravity m_ArtificialGravity = null;
 
-    public bool m_FPSMoving = false;
-    ///public bool m_ImInVR = false;
-    public Transform m_ReferenceTransform = null;
-
-    private Rigidbody m_Rigidbody;
 
     private Vector2 m_MoveInput = Vector2.zero;
     private Vector2 m_LookInput = Vector2.zero;
 
     private bool m_CleanMoving = false;
     private bool m_CleanLooking = false;
-   
+
     private bool m_ActiveLooking = false;
 
-#if USE_LEGACY_INPUT
-    List<UnityEngine.XR.InputDevice> mLeftInputDevices;
-    List<UnityEngine.XR.InputDevice> mRightInputDevices;
-#endif
+    private float m_CurrentPlayerSpeed = 0; 
+
+    //Vector3 mPreviousMousePosition = Vector3.zero;
+
     // Start is called before the first frame update
     void Start()
     {
-        m_Rigidbody = GetComponent<Rigidbody>();
-
-#if USE_LEGACY_INPUT
-        //XR
-        mLeftInputDevices = new List<UnityEngine.XR.InputDevice>();
-        UnityEngine.XR.InputDevices.GetDevicesAtXRNode(UnityEngine.XR.XRNode.LeftHand, mLeftInputDevices);
-
-        Debug.Log($"{mLeftInputDevices.Count} left devices discovered !");
-
-        mRightInputDevices = new List<UnityEngine.XR.InputDevice>();
-        UnityEngine.XR.InputDevices.GetDevicesAtXRNode(UnityEngine.XR.XRNode.RightHand, mRightInputDevices);
-
-        Debug.Log($"{mRightInputDevices.Count} right devices discovered !");
-#endif
+        
     }
 
     // Update is called once per frame
     void Update()
     {
-#if USE_LEGACY_INPUT
-        if (mLeftInputDevices.Count > 0)
-        {
-            mLeftInputDevices[0].TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out m_MovingInput);
-        }
+        //Vector3 lCurrentMousePosition = Input.mousePosition;
+        //Vector3 lDeltaMousePosition = lCurrentMousePosition - mPreviousMousePosition;
 
-        if(mRightInputDevices.Count > 0)
-        {
-            mRightInputDevices[0].TryGetFeatureValue(UnityEngine.XR.CommonUsages.primary2DAxis, out m_LookInput);
-        }
-#endif
 
+        //if (Input.GetKey(KeyCode.Mouse0))
+        //{
+        //    m_Tilt -= lDeltaMousePosition.y * m_MouseSensitivity;
+        //    m_Pan += lDeltaMousePosition.x * m_MouseSensitivity;
+        //}
+
+        
+
+        //mPreviousMousePosition = lCurrentMousePosition;
+
+        
+    }
+
+    private void FixedUpdate()
+    {
         moveUsingInputs();
+
+        m_Tilt = Mathf.Clamp(m_Tilt, m_MinTilt, m_MaxTilt);
+        m_Pan = Mathf.Repeat(m_Pan, 360);
+
+        transform.localRotation = Quaternion.Euler(m_Tilt, m_Pan, 0);
+
+
+
+        //if (Input.GetKey(KeyCode.Mouse1))
+        {
+
+            m_ArtificialGravity.SetMovingVector(Quaternion.Euler(0, m_Pan, 0) * (Vector3.forward +0.2f *Vector3.up) * m_CurrentPlayerSpeed);
+            //m_PlayerRigidbody.AddForce(m_PlayerRigidbody.transform.TransformDirection(Quaternion.Euler(0,m_Pan,0)*Vector3.forward) * m_PlayerSpeed * m_PlayerRigidbody.mass, ForceMode.Impulse);
+
+            //Debug.Log($"moving on");
+
+        }
+        //else
+        {
+            //m_ArtificialGravity.SetMovingVector(Vector3.zero);
+        }
     }
 
     private void moveUsingInputs()
     {
-        float lMoveDistance = m_Speed * Time.deltaTime;
+        float lMoveDistance = m_PlayerSpeed * Time.deltaTime;
         Vector3 lMoveVector = new Vector3();
 
-        if (m_FPSMoving)
+        //if (m_FPSMoving)
         {
             lMoveVector.z = m_MoveInput.y * lMoveDistance;
             lMoveVector.x = m_MoveInput.x * lMoveDistance;
             if (m_ActiveLooking)
             {
-                transform.Rotate(Vector3.up, m_LookInput.x * m_AngularSpeed * Time.deltaTime, Space.Self);
-                transform.Rotate(Vector3.right, -m_LookInput.y * m_AngularSpeed * Time.deltaTime, Space.Self);
+                m_Pan += m_LookInput.x * m_AngularSpeed * Time.deltaTime;
+                m_Tilt += -m_LookInput.y * m_AngularSpeed * Time.deltaTime;
+                //transform.Rotate(Vector3.up, m_LookInput.x * m_AngularSpeed * Time.deltaTime, Space.Self);
+                //transform.Rotate(Vector3.right, -m_LookInput.y * m_AngularSpeed * Time.deltaTime, Space.Self);
             }
         }
-        else
+        //else
         {
-            lMoveVector.z = m_MoveInput.y * lMoveDistance;
-            lMoveVector.x = m_MoveInput.x * lMoveDistance;
+            //lMoveVector.z = m_MoveInput.y * lMoveDistance;
+            //lMoveVector.x = m_MoveInput.x * lMoveDistance;
         }
 
-        Vector3 lFinalMoveVector;// = transform.TransformDirection(lMoveVector) * lMoveDistance;
+        m_CurrentPlayerSpeed = lMoveVector.z;
 
-        if (m_ReferenceTransform != null)
+        //Vector3 lFinalMoveVector;// = transform.TransformDirection(lMoveVector) * lMoveDistance;
+
+        //if (m_ReferenceTransform != null)
         {
             //float lMagnitude = lMoveVector.magnitude;
             //Vector3 lDirectionVector = m_ReferenceTransform.forward;
             //lDirectionVector.y = 0;
-            lFinalMoveVector = m_ReferenceTransform.forward * lMoveVector.z;// + m_ReferenceTransform.right * lMoveVector.x;
+            //lFinalMoveVector = m_ReferenceTransform.forward * lMoveVector.z;// + m_ReferenceTransform.right * lMoveVector.x;
         }
-        else
+        //else
         {
-            lFinalMoveVector = transform.TransformDirection(lMoveVector) * lMoveDistance;
+            //lFinalMoveVector = transform.TransformDirection(lMoveVector) * lMoveDistance;
         }
 
 
@@ -111,7 +131,7 @@ public class PlayerControlHyperMaze : MonoBehaviour
         //}
         //else
         {
-            m_Rigidbody.transform.Translate(lFinalMoveVector, Space.World);
+            //m_Rigidbody.transform.Translate(lFinalMoveVector, Space.World);
         }
 
 
@@ -134,6 +154,7 @@ public class PlayerControlHyperMaze : MonoBehaviour
         m_LookInput = Vector2.zero;
 #endif
     }
+
 
     public void moveInputs(InputAction.CallbackContext pContext)
     {
@@ -197,7 +218,7 @@ public class PlayerControlHyperMaze : MonoBehaviour
 
     public void activeLookInput(UnityEngine.InputSystem.InputAction.CallbackContext pContext)
     {
-        switch ( pContext.phase )
+        switch (pContext.phase)
         {
             case InputActionPhase.Canceled:
                 m_ActiveLooking = false;
