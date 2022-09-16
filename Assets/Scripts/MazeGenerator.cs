@@ -47,6 +47,9 @@ public class MazeGenerator
             case Balyrinth.Utilities.LabyShape.HoneyComb:
                 mShapeGenerator = new HoneycombShapeGenerator(pWidth, pHeight);
                 break;
+            case Balyrinth.Utilities.LabyShape.Octogonized:
+                mShapeGenerator = new OctoShapeGenerator(pWidth, pHeight);
+                break;
             case Balyrinth.Utilities.LabyShape.Hypermaze:
                 mShapeGenerator = new HyperMazeShapeGenerator(pWidth, pHeight, pDepth);
                 break;

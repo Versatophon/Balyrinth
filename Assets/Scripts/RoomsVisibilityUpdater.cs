@@ -233,6 +233,23 @@ public class RoomsVisibilityUpdater : MonoBehaviour
                     lRoomIndex = SquareShapeGenerator.getIndex(lXPosition, lZPosition, lNumberOfColumns, lNumberOfRows);
                 }
                 break;
+            case Balyrinth.Utilities.LabyShape.Octogonized:
+                {//TODO: Non Euclidian resolution need to be computed
+                    //lSGInterface = new SquareShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
+
+                    int lNumberOfColumns = m_MazeGenerator.mShapeGenerator.getWidth();
+                    int lNumberOfRows = m_MazeGenerator.mShapeGenerator.getHeight();
+
+                    //TODO: Check this part
+                    lZPosition = (int)((lPlayerPosition.z + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
+                    lXPosition = (int)((lPlayerPosition.x + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
+
+                    lZPosition = Mathf.Clamp(lZPosition, 0, lNumberOfRows - 1);
+                    lXPosition = Mathf.Clamp(lXPosition, 0, lNumberOfColumns - 1);
+
+                    lRoomIndex = SquareShapeGenerator.getIndex(lXPosition, lZPosition, lNumberOfColumns, lNumberOfRows);
+                }
+                break;
         }
 
         return lRoomIndex;

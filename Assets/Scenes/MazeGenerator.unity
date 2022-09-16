@@ -666,18 +666,20 @@ MonoBehaviour:
     m_Shape: 1
     m_NumberOfColumns: 10
     m_NumberOfRows: 10
+    m_NumberOfFloors: 10
     m_ProgressiveGeneration: 1
     m_AlgorithmIndex: 1
     m_AlgorithmCorridorPseudoLength: 10
     m_NumberOfConnectionsPerSeconds: 100
   m_SquareRoomPrefab: {fileID: 9062704152555679380, guid: 21e50a8fa53e33844adacebca19db60a, type: 3}
   m_HexagonalRoomPrefab: {fileID: 8137593934016169205, guid: 4846e1135283bf74b898928c6d2cafb2, type: 3}
+  m_OctogonalRoomPrefab: {fileID: 1668674170711958363, guid: 0d3bb21b7a6e8c742b23c4595f34f906, type: 3}
   m_RTCam: {fileID: 582941134}
   m_StartingPointPrefab: {fileID: 906998757196776968, guid: aba178f809e6dbf418033c1cdd2b03bd, type: 3}
   m_EndingPointPrefab: {fileID: 2943457217595682200, guid: 36ec340dce9b97144ace8d12b7457ea1, type: 3}
   m_PathRenderer: {fileID: 1815801629}
   m_PathSplineSubdivisions: 10
-  m_PathTension: 0.5
+  m_PathTension: 1
 --- !u!4 &277686781
 Transform:
   m_ObjectHideFlags: 0
@@ -5184,7 +5186,7 @@ GameObject:
   - component: {fileID: 1599576513}
   - component: {fileID: 1599576512}
   m_Layer: 5
-  m_Name: Dropdown
+  m_Name: DropdownShape
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -5266,6 +5268,8 @@ MonoBehaviour:
     - m_Text: Rectangular
       m_Image: {fileID: 0}
     - m_Text: Hexagonal
+      m_Image: {fileID: 0}
+    - m_Text: Octogonal
       m_Image: {fileID: 0}
   m_OnValueChanged:
     m_PersistentCalls:

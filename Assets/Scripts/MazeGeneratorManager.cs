@@ -148,6 +148,12 @@ public class MazeGeneratorManager
                     mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
                 }
                 break;
+            case Balyrinth.Utilities.LabyShape.Octogonized:
+                {
+                    ShapeGeneratorInterface lShapeGeneratorInterface = new OctoShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
+                    mInternalRepresentation = lShapeGeneratorInterface.generate(m_NumberOfColumns, m_NumberOfRows);
+                }
+                break;
             case Balyrinth.Utilities.LabyShape.Hypermaze:
                 {
                     ShapeGeneratorInterface lShapeGeneratorInterface = new HyperMazeShapeGenerator(m_NumberOfColumns, m_NumberOfRows, m_NumberOfFloors);
