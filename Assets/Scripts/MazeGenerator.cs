@@ -58,7 +58,7 @@ public class MazeGenerator
         mLabyrinth = pLaby;
         mStillConnectablesNodes = new List<Node>(pLaby.mNodes);
 
-        mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.GetNumberOfDirections());
+        mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.NumberOfDirections);
         //mCurrentDirection = mRandomGenerator.Next(4);
     }
 
@@ -395,7 +395,7 @@ public class MazeGenerator
 
                 while (lNewConnectedNode == null)
                 {
-                    mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.GetNumberOfDirections());
+                    mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.NumberOfDirections);
                     lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection/*, pLabyrinthWidth, pLabyrinthHeight*/);
                 }
 
@@ -473,14 +473,14 @@ public class MazeGenerator
                 //randomize direction
                 if(mRandomGenerator.Next(m_AlgorithmCorridorPseudoLength) == 0)
                 {
-                    mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.GetNumberOfDirections());
+                    mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.NumberOfDirections);
                 }
 
                 Node lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection/*, pLabyrinthWidth, pLabyrinthHeight*/);
 
                 while (lNewConnectedNode == null)
                 {
-                    mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.GetNumberOfDirections());
+                    mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.NumberOfDirections);
                     lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection/*, pLabyrinthWidth, pLabyrinthHeight*/);
                 }
 

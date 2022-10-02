@@ -6,11 +6,21 @@ public class RoomsVisibilityUpdater : MonoBehaviour
 {
     public GameObject m_PlayerViewer = null;
 
-    public GameObject m_SquareRoomPrefab = null;
-    public GameObject m_HexagonalRoomPrefab = null;
-    public GameObject m_HypermazeRoomPrefab = null;
+    //public GameObject m_SquareRoomPrefab = null;
+    //public GameObject m_HexagonalRoomPrefab = null;
+    //public GameObject m_HypermazeRoomPrefab = null;
+    //public GameObject m_OctogonalRoomPrefab = null;
+
+
+    //Debug vars
+    public GameObject m_LeftSpot = null;
+    public GameObject m_RightSpot = null; 
+    public GameObject m_FirstDoorLeftSpot = null;
+    public GameObject m_FirstDoorRightSpot = null;
 
     private GameObject mObjectToInstantiate;
+
+    private bool m_FirstDoorLocated = false;
 
     public GameObject ObjectToInstantiate
     {
@@ -64,7 +74,7 @@ public class RoomsVisibilityUpdater : MonoBehaviour
     {
         if (m_MazeGenerator != null)
         {
-            int lNumDirections = m_MazeGenerator.mShapeGenerator.GetNumberOfDirections();
+            int lNumDirections = m_MazeGenerator.mShapeGenerator.NumberOfDirections;
 
             //List<int> lVisibleRoomsIndices = new List<int>();
             mVisibleRoomsIndices.Clear();
@@ -75,10 +85,20 @@ public class RoomsVisibilityUpdater : MonoBehaviour
             if (lCurrentRoomIndex != -1)
             {
                 mVisibleRoomsIndices.Add(lCurrentRoomIndex);
-                Vector3 lLeftViewVector = m_PlayerViewer.transform.TransformDirection(-Vector3.right);
-                Vector3 lRightViewVector = m_PlayerViewer.transform.TransformDirection(Vector3.right);
+                Vector3 lLeftViewVector = m_PlayerViewer.transform.TransformDirection(-Vector3.right + Vector3.forward);
+                //Vector3 lLeftViewVector = m_PlayerViewer.transform.TransformDirection(-Vector3.right);
+                Vector3 lRightViewVector = m_PlayerViewer.transform.TransformDirection(Vector3.right + Vector3.forward);
+                //Vector3 lRightViewVector = m_PlayerViewer.transform.TransformDirection(Vector3.right);
 
-                RecursiveSeeThrough(lCurrentRoomIndex, -1, lNumDirections, Mathf.Rad2Deg * Mathf.Atan2(-lLeftViewVector.z, lLeftViewVector.x), Mathf.Rad2Deg * Mathf.Atan2(-lRightViewVector.z, lRightViewVector.x));
+                if( m_LeftSpot != null && m_RightSpot != null )
+                {
+                    m_LeftSpot.transform.position = m_PlayerViewer.transform.position + lLeftViewVector;
+                    m_RightSpot.transform.position = m_PlayerViewer.transform.position + lRightViewVector;
+                }
+
+                m_FirstDoorLocated = false;
+
+                RecursiveSeeThrough(lCurrentRoomIndex, m_MazeGenerator.mShapeGenerator.getRoomPosition(lCurrentRoomIndex), -1, lNumDirections, Mathf.Atan2(lRightViewVector.z, lRightViewVector.x), Mathf.Atan2(lLeftViewVector.z, lLeftViewVector.x));
             }
 
             while ( m_Rooms.Count < mVisibleRoomsIndices.Count )
@@ -106,8 +126,9 @@ public class RoomsVisibilityUpdater : MonoBehaviour
         }
     }
 
-    private void RecursiveSeeThrough(int pRoomIndex, int pFromDirection, int pNumDirections, float pMinAngle, float pMaxAngle)
+    private void RecursiveSeeThrough(int pRoomIndex, Vector3 pComputedRoomPosition, int pFromDirection, int pNumDirections, float pMinAngleRadians, float pMaxAngleRadians)
     {
+        
         //Debug.Log("Comming From " + pRoomIndex + " to " + pFromDirection);
         for (int i = 0; i < pNumDirections; ++i)
         {
@@ -117,17 +138,28 @@ public class RoomsVisibilityUpdater : MonoBehaviour
 
                 if (m_MazeGenerator.areConnected(pRoomIndex, lNextCellIndex))
                 {
-                    float lMinimalComputedAngle;
-                    float lMaximalComputedAngle;
+                    float lMinimalComputedAngleRadians;
+                    float lMaximalComputedAngleRadians;
                     Vector3 lLeftExtremity;
                     Vector3 lRightExtremity;
 
-                    m_MazeGenerator.mShapeGenerator.getDoorExtremities(pRoomIndex, i, out lLeftExtremity, out lRightExtremity);
+                    m_MazeGenerator.mShapeGenerator.getDoorLocalExtremities(i, out lLeftExtremity, out lRightExtremity);
 
-                    float lMinimalLocalAngle = Mathf.Rad2Deg * Mathf.Atan2(-(lLeftExtremity.z - m_PlayerViewer.transform.position.z), lLeftExtremity.x - m_PlayerViewer.transform.position.x);
-                    float lMaximalLocalAngle = Mathf.Rad2Deg * Mathf.Atan2(-(lRightExtremity.z - m_PlayerViewer.transform.position.z), lRightExtremity.x - m_PlayerViewer.transform.position.x);
+                    lLeftExtremity += pComputedRoomPosition;
+                    lRightExtremity += pComputedRoomPosition;
 
-                    //Debug.Log($"Angles ({lMinimalLocalAngle}, {lMaximalLocalAngle})");
+                    if (!m_FirstDoorLocated && m_FirstDoorLeftSpot != null && m_FirstDoorRightSpot != null)
+                    {
+                        m_FirstDoorLeftSpot.transform.position = lLeftExtremity;
+                        m_FirstDoorRightSpot.transform.position = lRightExtremity;
+                        m_FirstDoorLocated = true;
+                    }
+
+                    float lMinimalLocalAngleRadians = Mathf.Atan2((lRightExtremity.z - m_PlayerViewer.transform.position.z), lRightExtremity.x - m_PlayerViewer.transform.position.x);
+                    float lMaximalLocalAngleRadians = Mathf.Atan2((lLeftExtremity.z - m_PlayerViewer.transform.position.z), lLeftExtremity.x - m_PlayerViewer.transform.position.x);
+                    //m_LeftSpot
+
+                    //Debug.Log($"Angles ({Mathf.Rad2Deg * lMinimalLocalAngle}, {Mathf.Rad2Deg * lMaximalLocalAngle})");
 
 #if false
                     //checks if door is viewed from the back
@@ -141,12 +173,12 @@ public class RoomsVisibilityUpdater : MonoBehaviour
                     }
 #endif
 
-                    if (Balyrinth.Utilities.isMinimalAngleIsDirect(lMinimalLocalAngle, lMaximalLocalAngle))
+                    if (Balyrinth.Utilities.isMinimalAngleRadiansIsDirect(lMinimalLocalAngleRadians, lMaximalLocalAngleRadians))
                     {
-                        if (Balyrinth.Utilities.isInSight(pMinAngle, pMaxAngle, lMinimalLocalAngle, lMaximalLocalAngle, out lMinimalComputedAngle, out lMaximalComputedAngle))
+                        if (Balyrinth.Utilities.isInSightRadians(pMinAngleRadians, pMaxAngleRadians, lMinimalLocalAngleRadians, lMaximalLocalAngleRadians, out lMinimalComputedAngleRadians, out lMaximalComputedAngleRadians))
                         {
                             mVisibleRoomsIndices.Add(lNextCellIndex);
-                            RecursiveSeeThrough(lNextCellIndex, i, pNumDirections, lMinimalComputedAngle, lMaximalComputedAngle);
+                            RecursiveSeeThrough(lNextCellIndex, pComputedRoomPosition + m_MazeGenerator.mShapeGenerator.getDirectionOffset(i), i, pNumDirections, lMinimalComputedAngleRadians, lMaximalComputedAngleRadians);
                         }
                     }
                 }
@@ -157,8 +189,8 @@ public class RoomsVisibilityUpdater : MonoBehaviour
 
     int ResolveCurrentRoom()
     {
-        int lZPosition = 0;
-        int lXPosition = 0;
+       // int lZPosition = 0;
+       // int lXPosition = 0;
 
         int lRoomIndex = -1;
 
@@ -166,6 +198,7 @@ public class RoomsVisibilityUpdater : MonoBehaviour
 
         Vector3 lPlayerPosition = m_PlayerViewer.transform.position;
 
+#if false
         switch (m_MazeGenerator.mShapeGenerator.getLabyShape())
         {
             case Balyrinth.Utilities.LabyShape.HoneyComb:
@@ -217,24 +250,11 @@ public class RoomsVisibilityUpdater : MonoBehaviour
                 }
                 break;
             case Balyrinth.Utilities.LabyShape.Rectangle:
-                {
-                    //lSGInterface = new SquareShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
-
-                    int lNumberOfColumns = m_MazeGenerator.mShapeGenerator.getWidth();
-                    int lNumberOfRows = m_MazeGenerator.mShapeGenerator.getHeight();
-
-                    //TODO: Check this part
-                    lZPosition = (int)((lPlayerPosition.z + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
-                    lXPosition = (int)((lPlayerPosition.x + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
-
-                    lZPosition = Mathf.Clamp(lZPosition, 0, lNumberOfRows - 1);
-                    lXPosition = Mathf.Clamp(lXPosition, 0, lNumberOfColumns - 1);
-
-                    lRoomIndex = SquareShapeGenerator.getIndex(lXPosition, lZPosition, lNumberOfColumns, lNumberOfRows);
-                }
-                break;
             case Balyrinth.Utilities.LabyShape.Octogonized:
-                {//TODO: Non Euclidian resolution need to be computed
+                {
+                    lRoomIndex = m_MazeGenerator.mShapeGenerator.getRoomIndex(lPlayerPosition);
+
+#if false
                     //lSGInterface = new SquareShapeGenerator(m_NumberOfColumns, m_NumberOfRows);
 
                     int lNumberOfColumns = m_MazeGenerator.mShapeGenerator.getWidth();
@@ -247,11 +267,13 @@ public class RoomsVisibilityUpdater : MonoBehaviour
                     lZPosition = Mathf.Clamp(lZPosition, 0, lNumberOfRows - 1);
                     lXPosition = Mathf.Clamp(lXPosition, 0, lNumberOfColumns - 1);
 
-                    lRoomIndex = SquareShapeGenerator.getIndex(lXPosition, lZPosition, lNumberOfColumns, lNumberOfRows);
+                    lRoomIndex = m_MazeGenerator.mShapeGenerator.getIndex(lXPosition, lZPosition, lNumberOfColumns, lNumberOfRows);
+#endif
                 }
                 break;
         }
-
+#endif
+        lRoomIndex = m_MazeGenerator.mShapeGenerator.getRoomIndex(lPlayerPosition);
         return lRoomIndex;
     }
 
@@ -264,7 +286,7 @@ public class RoomsVisibilityUpdater : MonoBehaviour
         pRoom.transform.position = m_MazeGenerator.getPosition(pRoomIndex);
 
         List<bool> lConnections = new List<bool>();
-        for (int i = 0; i < m_MazeGenerator.mShapeGenerator.GetNumberOfDirections(); ++i)
+        for (int i = 0; i < m_MazeGenerator.mShapeGenerator.NumberOfDirections; ++i)
         {
             lConnections.Add(m_MazeGenerator.areConnected(pRoomIndex, m_MazeGenerator.mShapeGenerator.getNextCellIndex(pRoomIndex, i)));
             //lRoom.m_ConnectionsActive[i] = ;

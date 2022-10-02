@@ -56,6 +56,42 @@ namespace Balyrinth
             return (pMaximalOverlapAngle >= pMinimalOverlapAngle);
         }
 
+        public static bool isInSightRadians(float pMinimalViewvingAngle, float pMaximalViewingAngle, float pMinimalObjectAngle, float pMaximalObjectAngle, out float pMinimalOverlapAngle, out float pMaximalOverlapAngle)
+        {
+            pMinimalViewvingAngle = Mathf.Repeat(pMinimalViewvingAngle, 2 * Mathf.PI);
+            pMaximalViewingAngle = Mathf.Repeat(pMaximalViewingAngle, 2 * Mathf.PI);
+
+            pMinimalObjectAngle = Mathf.Repeat(pMinimalObjectAngle, 2 * Mathf.PI);
+            pMaximalObjectAngle = Mathf.Repeat(pMaximalObjectAngle, 2 * Mathf.PI);
+
+            if (pMaximalViewingAngle < pMinimalViewvingAngle)
+            {
+                pMaximalViewingAngle += 2 * Mathf.PI;
+            }
+
+            if (pMaximalObjectAngle < pMinimalObjectAngle)
+            {
+                pMaximalObjectAngle += 2 * Mathf.PI;
+            }
+
+            if (pMinimalViewvingAngle < pMinimalObjectAngle && pMaximalViewingAngle < pMinimalObjectAngle)
+            {
+                pMinimalViewvingAngle += 2 * Mathf.PI;
+                pMaximalViewingAngle += 2 * Mathf.PI;
+            }
+
+            if (pMinimalObjectAngle < pMinimalViewvingAngle && pMaximalObjectAngle < pMinimalViewvingAngle)
+            {
+                pMinimalObjectAngle += 2 * Mathf.PI;
+                pMaximalObjectAngle += 2 * Mathf.PI;
+            }
+
+            pMinimalOverlapAngle = Mathf.Max(pMinimalViewvingAngle, pMinimalObjectAngle);
+            pMaximalOverlapAngle = Mathf.Min(pMaximalViewingAngle, pMaximalObjectAngle);
+
+            return (pMaximalOverlapAngle >= pMinimalOverlapAngle);
+        }
+
         //this method checks if direct angle is smaller than indirect angle (in degrees) - concave
         public static bool isMinimalAngleIsDirect(float pAngle1, float pAngle2)
         {
@@ -68,6 +104,19 @@ namespace Balyrinth
             }
 
             return (pAngle2 - pAngle1) < 180;
+        }
+
+        public static bool isMinimalAngleRadiansIsDirect(float pAngle1, float pAngle2)
+        {
+            pAngle1 = Mathf.Repeat(pAngle1, 2 * Mathf.PI);
+            pAngle2 = Mathf.Repeat(pAngle2, 2 * Mathf.PI);
+
+            if (pAngle2 < pAngle1)
+            {
+                pAngle2 += 2 * Mathf.PI;
+            }
+
+            return (pAngle2 - pAngle1) < Mathf.PI;
         }
     }
 }

@@ -91,7 +91,7 @@ public class MazeGeneratorManager
 
     public bool[] GetConnectedDirections(int pNodeIndex)
     {
-        int lNumDirections = mMazeGenerator.mShapeGenerator.GetNumberOfDirections();
+        int lNumDirections = mMazeGenerator.mShapeGenerator.NumberOfDirections;
         bool[] lReturnArray = new bool[lNumDirections];
         //TODO: use Linq
         for (int i = 0; i < lNumDirections; ++i)

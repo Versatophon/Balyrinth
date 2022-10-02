@@ -8,6 +8,13 @@ using UnityEngine;
 #if true
 public class HyperMazeShapeGenerator : ShapeGeneratorInterface
 {
+    public int NumberOfDirections { get { return 6; } }
+    public float StartAngle { get { return 180; } }
+    public float LeftOffset { get { return 45; } }
+    public float StepOffset { get { return -90; } }
+    public float DoorsExtermitiesDistance { get { return 1.732765f; } }
+    public float RoomsDistance { get { return 2; } }
+
     int mWidth = 10;
     int mHeight = 10;
     int mDepth = 10;
@@ -18,10 +25,10 @@ public class HyperMazeShapeGenerator : ShapeGeneratorInterface
         mHeight = pHeight;
         mDepth = pDepth;
     }
-    public int GetNumberOfDirections()
-    {
-        return 6;
-    }
+    //public int GetNumberOfDirections()
+    //{
+    //    return 6;
+    //}
 
     public int getNextCellIndex(int pCurrentcellIndex, int pDirection)
     {
@@ -83,7 +90,6 @@ public class HyperMazeShapeGenerator : ShapeGeneratorInterface
     {
         return (pZ != (mDepth - 1)) ? pX + (pY * mWidth) + ((pZ+1) * mWidth * mHeight) : -1;
     }
-
     public Labyrinth generate(int pWidth = 10, int pHeight = 10, int pDepth = 10)
     {
         mWidth = pWidth;
@@ -177,21 +183,37 @@ public class HyperMazeShapeGenerator : ShapeGeneratorInterface
         return lLaby;
     }
 
-    public int getOppositeDirection(int pDirection)
-    {
-        return (pDirection + GetNumberOfDirections() / 2) % GetNumberOfDirections();
-    }
+    //public int getOppositeDirection(int pDirection)
+    //{
+    //    return (pDirection + GetNumberOfDirections() / 2) % GetNumberOfDirections();
+    //}
 
     public Vector3 getRoomPosition(int pIndex)
     {
         return new Vector3((pIndex % mWidth) * 2, (pIndex / (mWidth * mHeight)) * 2, (((pIndex%(mWidth*mHeight)) / mWidth) * 2)) * Balyrinth.Utilities.VIEW_SCALE;
     }
 
+    public int getRoomIndex(Vector3 pPosition)
+    {
+        //TODO: Check this part
+        int lXPosition = (int)((pPosition.x + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
+        int lYPosition = (int)((pPosition.y + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
+        int lZPosition = (int)((pPosition.z + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
+
+        lZPosition = Mathf.Clamp(lZPosition, 0, mHeight - 1);
+        lYPosition = Mathf.Clamp(lYPosition, 0, mWidth - 1);
+        lXPosition = Mathf.Clamp(lXPosition, 0, mDepth - 1);
+
+        return ((lZPosition * mDepth + lYPosition) * mWidth) + lXPosition;
+    }
+
+#if false
     public void getDoorExtremities(int pRoomIndex, int pDirection, out Vector3 pLeft, out Vector3 pRight)
     {
         pLeft = Vector3.zero;
         pRight = Vector3.zero;
     }
+#endif
 
     public Balyrinth.Utilities.LabyShape getLabyShape()
     {

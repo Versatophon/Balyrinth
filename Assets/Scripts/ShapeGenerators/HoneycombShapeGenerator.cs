@@ -5,10 +5,17 @@ using UnityEngine;
 
 public class HoneycombShapeGenerator : ShapeGeneratorInterface
 {
-    public int GetNumberOfDirections()
-    {
-        return 6;
-    }
+    public int NumberOfDirections { get { return 6; } }
+    public float StartAngle { get {return 180;} }
+    public float LeftOffset { get {return 30;} }
+    public float StepOffset { get { return -60; } }
+    public float DoorsExtermitiesDistance { get { return 1.154775f; } }
+    public float RoomsDistance { get { return 2; } }
+
+    //public int GetNumberOfDirections()
+    //{
+    //    return 6;
+    //}
 
     public int getNextCellIndex(int pCurrentcellIndex, int pDirection)
     {
@@ -226,34 +233,81 @@ public class HoneycombShapeGenerator : ShapeGeneratorInterface
         return lLaby;
     }
 
-    public int getOppositeDirection(int pDirection)
-    {
-        return (pDirection + (GetNumberOfDirections() / 2)) % GetNumberOfDirections();
-    }
+    //public int getOppositeDirection(int pDirection)
+    //{
+    //    return (pDirection + (GetNumberOfDirections() / 2)) % GetNumberOfDirections();
+    //}
 
     public Vector3 getRoomPosition(int pIndex)
     {
-        return new Vector3(Mathf.Sqrt(3) * ((pIndex % mWidth) + ((pIndex / mWidth) % 2 == 0 ? 0 : 0.5f)), 0, 1.5f * (pIndex / mWidth)) * Balyrinth.Utilities.VIEW_SCALE;
+        return new Vector3(2f * ((pIndex % mWidth) + ((pIndex / mWidth) % 2 == 0 ? 0 : 0.5f)), 0, (3f / Mathf.Sqrt(3)) * (pIndex / mWidth)) * Balyrinth.Utilities.VIEW_SCALE;
     }
 
+    public int getRoomIndex(Vector3 pPosition)
+    {
+        int lZPosition = (int)((pPosition.z + (1f * Balyrinth.Utilities.VIEW_SCALE)) / (1.5f * Balyrinth.Utilities.VIEW_SCALE));
+
+        bool lEven = (lZPosition % 2) == 0;
+        int lXPosition = (int)(((pPosition.x + (lEven ? (Mathf.Sqrt(3) / 2) * Balyrinth.Utilities.VIEW_SCALE : 0)) / (Mathf.Sqrt(3) * Balyrinth.Utilities.VIEW_SCALE)));
+
+        //Debug.Log(lPlayerPosition);
+        //Debug.Log(lXPosition + " " + lZPosition + " from " + lPlayerPosition);
+
+        lZPosition = Mathf.Clamp(lZPosition, 0, mHeight - 1);
+        lXPosition = Mathf.Clamp(lXPosition, 0, mWidth - 1);
+
+        int lRoomIndex = lZPosition * mWidth + lXPosition;// HoneycombShapeGenerator.getIndex(lXPosition, lZPosition, lNumberOfColumns, lNumberOfRows);
+
+        float lMagnitude =  (getRoomPosition(lRoomIndex) - pPosition).magnitude;
+
+#if true
+        for (int j = -1; j < 2; ++j)
+        {
+            for (int i = -1; i < 2; ++i)
+            {
+                int lLocalRoomIndex = lXPosition + i + (lZPosition + j) * mWidth;
+                if (lLocalRoomIndex >= 0 && lLocalRoomIndex < mWidth * mHeight)
+                {
+                    float lLocalMagnitude = (getRoomPosition(lLocalRoomIndex) - pPosition).magnitude; 
+
+                    if (lLocalMagnitude < lMagnitude)
+                    {
+                        lMagnitude = lLocalMagnitude;
+                        lRoomIndex = lLocalRoomIndex;
+                    }
+                }
+            }
+        }
+#endif
+
+
+        return lRoomIndex;
+    }
+
+#if false
     const float sStartAngle = -180;
     const float sLeftOffset = -30;
-    const float sRightOffset = 30;
+    //const float sRightOffset = 30;
     const float sStepOffset = 60;
 
-    public void getDoorExtremities(int pRoomIndex, int pDirection, out Vector3 pLeft, out Vector3 pRight)//Hexagon of 1 unit radius
-    {
-        Vector3 lCenter = getRoomPosition(pRoomIndex);
 
-        float lleftAngle  = Mathf.Deg2Rad * (sStartAngle + pDirection * sStepOffset + sLeftOffset);
+
+    public Vector3 getLeftDoorSidePosition(int pDirection)
+    {
+        float lleftAngle = Mathf.Deg2Rad * (sStartAngle + pDirection * sStepOffset + sLeftOffset);
+
+        return (new Vector3(Mathf.Cos(lleftAngle), 0, -Mathf.Sin(lleftAngle)) * Balyrinth.Utilities.VIEW_SCALE);
+    }
+
+    public void getDoorLocalExtremities(int pRoomIndex, int pDirection, out Vector3 pLeft, out Vector3 pRight)//Hexagon of 1 unit radius
+    {
+        float lleftAngle = Mathf.Deg2Rad * (sStartAngle + pDirection * sStepOffset + sLeftOffset);
         float lRightAngle = Mathf.Deg2Rad * (sStartAngle + pDirection * sStepOffset + sRightOffset);
 
-        pLeft = lCenter + (new Vector3(Mathf.Cos(lleftAngle), 0, -Mathf.Sin(lleftAngle)) * Balyrinth.Utilities.VIEW_SCALE);
-        pRight = lCenter + (new Vector3(Mathf.Cos(lRightAngle), 0, -Mathf.Sin(lRightAngle)) * Balyrinth.Utilities.VIEW_SCALE);
-
-        //pRight = lCenter + new Vector3(Mathf.Cos(Mathf.Deg2Rad * (-210 - pDirection * 60)), 0, Mathf.Sin(Mathf.Deg2Rad * (-210 - pDirection * 60)));
-        //pLeft = lCenter + new Vector3(Mathf.Cos(Mathf.Deg2Rad * (-150 - pDirection * 60)), 0, Mathf.Sin(Mathf.Deg2Rad * (-150 - pDirection * 60)));
+        pLeft = (new Vector3(Mathf.Cos(lleftAngle), 0, -Mathf.Sin(lleftAngle)) * Balyrinth.Utilities.VIEW_SCALE);
+        pRight = (new Vector3(Mathf.Cos(lRightAngle), 0, -Mathf.Sin(lRightAngle)) * Balyrinth.Utilities.VIEW_SCALE);
     }
+#endif
 
     public Utilities.LabyShape getLabyShape()
     {

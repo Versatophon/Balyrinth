@@ -158,15 +158,6 @@ public class LabyrinthSpawner : MonoBehaviour, MazeGenerationListener
             switch (m_MazeGeneratorManager.m_Shape)
             {
                 case Balyrinth.Utilities.LabyShape.Rectangle:
-                    {
-                        lViewportAdapter.m_xMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
-                        lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + m_MazeGeneratorManager.m_NumberOfColumns * 2 * Balyrinth.Utilities.VIEW_SCALE;
-                        lViewportAdapter.m_zMin = -5;
-                        lViewportAdapter.m_zMax = 5;
-                        lViewportAdapter.m_yMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
-                        lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + m_MazeGeneratorManager.m_NumberOfRows * 2 * Balyrinth.Utilities.VIEW_SCALE;
-                    }
-                    break;
                 case Balyrinth.Utilities.LabyShape.Octogonized:
                     {
                         lViewportAdapter.m_xMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
@@ -179,12 +170,12 @@ public class LabyrinthSpawner : MonoBehaviour, MazeGenerationListener
                     break;
                 case Balyrinth.Utilities.LabyShape.HoneyComb:
                     {
-                        lViewportAdapter.m_xMin = (-Mathf.Sqrt(3) / 2) * Balyrinth.Utilities.VIEW_SCALE;
-                        lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + (m_MazeGeneratorManager.m_NumberOfColumns + 0.5f) * Mathf.Sqrt(3) * Balyrinth.Utilities.VIEW_SCALE;
+                        lViewportAdapter.m_xMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
+                        lViewportAdapter.m_xMax = lViewportAdapter.m_xMin + (m_MazeGeneratorManager.m_NumberOfColumns + 0.5f) * 2 * Balyrinth.Utilities.VIEW_SCALE;
                         lViewportAdapter.m_zMin = -5;
                         lViewportAdapter.m_zMax = 5;
-                        lViewportAdapter.m_yMin = -1 * Balyrinth.Utilities.VIEW_SCALE;
-                        lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + (m_MazeGeneratorManager.m_NumberOfRows * 1.5f + 0.5f) * Balyrinth.Utilities.VIEW_SCALE;
+                        lViewportAdapter.m_yMin = -(2f / Mathf.Sqrt(3)) * Balyrinth.Utilities.VIEW_SCALE;
+                        lViewportAdapter.m_yMax = lViewportAdapter.m_yMin + (m_MazeGeneratorManager.m_NumberOfRows * 1.5f + 0.5f) * (2f/Mathf.Sqrt(3)) * Balyrinth.Utilities.VIEW_SCALE;
                     }
                     break;
                 case Balyrinth.Utilities.LabyShape.Sphere:
