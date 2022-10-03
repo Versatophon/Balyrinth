@@ -36,6 +36,8 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
     public OrbitalManipulator m_OrbitalManipulator = null;
 
+    public bool m_LoopGeneration = false;
+
     GameObject m_StartCP = null;
     GameObject m_GoalCP = null;
 
@@ -200,9 +202,11 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
     {
         if (m_Player != null)
         {
+            m_RoomsVisibilityUpdater.Init();
             m_Player.Teleport(m_MazeGeneratorManager.GetObjectPosition(m_MazeGeneratorManager.GetStartingNodeIndex()) + new Vector3(0, (UnityEngine.XR.Management.XRGeneralSettings.Instance?.Manager?.activeLoader == null ? 1.5f : 0), 0), Vector3.down);
             //m_Player.transform.position = m_MazeGeneratorManager.GetObjectPosition(m_MazeGeneratorManager.GetStartingNodeIndex()) + new Vector3(0, (UnityEngine.XR.Management.XRGeneralSettings.Instance?.Manager?.activeLoader == null ? 1.5f : 0), 0);
             //m_Player.transform.rotation = Quaternion.identity;
+            m_RoomsVisibilityUpdater.SetCheckpoints(m_MazeGeneratorManager.GetStartingNodeIndex(), m_StartCP, m_MazeGeneratorManager.GetEndingNodeIndex(), m_GoalCP, m_SpawnPointsOffset);
         }
     }
 
@@ -232,7 +236,7 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
 
         //TODO: Find another way to handle this
-        m_RoomsVisibilityUpdater.m_MazeGenerator = m_MazeGeneratorManager.GetMazeGenerator();
+        m_RoomsVisibilityUpdater.m_MazeGeneratorManager = m_MazeGeneratorManager;
 
         //m_TimeCounter = 0;
 
@@ -315,10 +319,6 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
     public void GenerationDone()
     {
-        
-
-
-
         if (m_StartCP == null)
         {
             m_StartCP = GameObject.Instantiate(m_Starting);
@@ -331,10 +331,18 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
         m_StartCP.transform.position = m_MazeGeneratorManager.GetObjectPosition(m_MazeGeneratorManager.GetStartingNodeIndex()) + m_SpawnPointsOffset;
         m_GoalCP.transform.position = m_MazeGeneratorManager.GetObjectPosition(m_MazeGeneratorManager.GetEndingNodeIndex()) + m_SpawnPointsOffset;
-        
+
+        m_StartCP.SetActive(false);
+        m_GoalCP.SetActive(false);
+
         mNeedToCompute = false;
 
         SpawnPlayer();
+
+        if ( m_LoopGeneration )
+        {
+            InitiateGeneration();
+        }
     }
 
     //private void UpdateGeneration()

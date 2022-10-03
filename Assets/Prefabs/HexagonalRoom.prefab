@@ -596,7 +596,12 @@ MonoBehaviour:
   - {fileID: 3198620023766838390}
   m_AntiwallsObjects: []
   m_Ceiling: {fileID: 2226824098603872908}
+  m_Floor: {fileID: 767560387802794237}
+  m_TPColliders: {fileID: 0}
   m_ConnectionsActive: 000000000000
+  m_Highlighted: 0
+  m_StandardMaterial: {fileID: 2100000, guid: f7e4e6e73633815409b9c9c679ef29e5, type: 2}
+  m_HighligthedMaterial: {fileID: 2100000, guid: 92595afeae6a44046be8ce0015369d6c, type: 2}
 --- !u!1 &9053330617801259705
 GameObject:
   m_ObjectHideFlags: 0
@@ -769,6 +774,11 @@ PrefabInstance:
 --- !u!4 &138833923283472967 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: -8679921383154817045, guid: 55cbc2611da84cc4cafc983893887198, type: 3}
+  m_PrefabInstance: {fileID: 461484592791598508}
+  m_PrefabAsset: {fileID: 0}
+--- !u!1 &767560387802794237 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 919132149155446097, guid: 55cbc2611da84cc4cafc983893887198, type: 3}
   m_PrefabInstance: {fileID: 461484592791598508}
   m_PrefabAsset: {fileID: 0}
 --- !u!1 &8587001075302068260 stripped

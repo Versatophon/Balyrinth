@@ -245,10 +245,26 @@ public class HoneycombShapeGenerator : ShapeGeneratorInterface
 
     public int getRoomIndex(Vector3 pPosition)
     {
-        int lZPosition = (int)((pPosition.z + (1f * Balyrinth.Utilities.VIEW_SCALE)) / (1.5f * Balyrinth.Utilities.VIEW_SCALE));
+        //4/3 * sqrt(3) ==> half height
+
+        //?x?           ? sqrt(3)   sqrt(3) / 2 ?   ?q?
+        //? ?  = size × ?                       ? × ? ?
+        //?y?           ?    0          3 / 2   ?   ?r?
+
+        //pPosition.z + 4 / 3 * sqrt(3)
+        //sqrt(3) * 2/3 * 3/2
+        //3/2
+        
+        
+        int lZPosition = (int)((pPosition.z + Mathf.Sqrt(3) * Balyrinth.Utilities.VIEW_SCALE) / (Mathf.Sqrt(3) * Balyrinth.Utilities.VIEW_SCALE));
+        //int lZPosition = (int)((pPosition.z + Mathf.Sqrt(3) * Balyrinth.Utilities.VIEW_SCALE) / (1.5f * (4f / 3f) * Balyrinth.Utilities.VIEW_SCALE));
+
+
+        //int lZPosition = (int)((pPosition.z + ((4f/3f) * Balyrinth.Utilities.VIEW_SCALE)) / (1.5f * (4f / 3f) * Balyrinth.Utilities.VIEW_SCALE));
 
         bool lEven = (lZPosition % 2) == 0;
-        int lXPosition = (int)(((pPosition.x + (lEven ? (Mathf.Sqrt(3) / 2) * Balyrinth.Utilities.VIEW_SCALE : 0)) / (Mathf.Sqrt(3) * Balyrinth.Utilities.VIEW_SCALE)));
+        int lXPosition = (int)(((pPosition.x + (lEven ? Balyrinth.Utilities.VIEW_SCALE : 0)) / (2f * Balyrinth.Utilities.VIEW_SCALE)));
+        //int lXPosition = (int)(((pPosition.x + (lEven ? (Mathf.Sqrt(3) / 2) * Balyrinth.Utilities.VIEW_SCALE : 0)) / ((3f / 4f) * Mathf.Sqrt(3) * Balyrinth.Utilities.VIEW_SCALE)));
 
         //Debug.Log(lPlayerPosition);
         //Debug.Log(lXPosition + " " + lZPosition + " from " + lPlayerPosition);

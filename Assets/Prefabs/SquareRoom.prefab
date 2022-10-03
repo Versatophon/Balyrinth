@@ -1494,4 +1494,9 @@ MonoBehaviour:
   - {fileID: 6857368494450735629}
   m_AntiwallsObjects: []
   m_Ceiling: {fileID: 7661844236787817480}
+  m_Floor: {fileID: 7842516991077421269}
+  m_TPColliders: {fileID: 0}
   m_ConnectionsActive: 00000000
+  m_Highlighted: 0
+  m_StandardMaterial: {fileID: 2100000, guid: f7e4e6e73633815409b9c9c679ef29e5, type: 2}
+  m_HighligthedMaterial: {fileID: 2100000, guid: 92595afeae6a44046be8ce0015369d6c, type: 2}

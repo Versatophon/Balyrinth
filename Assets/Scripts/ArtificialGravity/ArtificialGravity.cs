@@ -12,6 +12,8 @@ public class ArtificialGravity : MonoBehaviour
     protected Vector3 m_MovingVector = Vector3.zero;
     protected Vector3 m_LastContactPoint = Vector3.zero;
 
+
+
     // Start is called before the first frame update
     void Start()
     {
@@ -76,10 +78,16 @@ public class ArtificialGravity : MonoBehaviour
             //Set Moving
             GetComponent<Rigidbody>().AddForce(m_MovingVector * GetComponent<Rigidbody>().mass, ForceMode.Impulse);
         }
+
     }
 
     public void SetMovingVector(Vector3 pMovingVector)
     {
         m_MovingVector = transform.TransformDirection(pMovingVector);
+    }
+
+    public Vector3 getMovingDirection()
+    {
+        return m_MovingVector.normalized;
     }
 }

@@ -384,7 +384,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &751562207
 Transform:
   m_ObjectHideFlags: 0
@@ -1840,7 +1840,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MazeGeneratorManager:
-    m_Shape: 1
+    m_Shape: 2
     m_NumberOfColumns: 3
     m_NumberOfRows: 3
     m_NumberOfFloors: 10
@@ -1859,6 +1859,7 @@ MonoBehaviour:
   m_RoomsVisibilityUpdater: {fileID: 2135497984}
   m_MapCamAdapter: {fileID: 1315907212}
   m_OrbitalManipulator: {fileID: 0}
+  m_LoopGeneration: 0
 --- !u!4 &2135497983
 Transform:
   m_ObjectHideFlags: 0
@@ -1887,10 +1888,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_PlayerViewer: {fileID: 2021720643}
+  m_DisplayDebug: 0
   m_LeftSpot: {fileID: 1203077530}
   m_RightSpot: {fileID: 1107548709}
   m_FirstDoorLeftSpot: {fileID: 1881201896}
   m_FirstDoorRightSpot: {fileID: 1840349769}
+  m_MazeGeneratorManager:
+    m_Shape: 0
+    m_NumberOfColumns: 10
+    m_NumberOfRows: 10
+    m_NumberOfFloors: 10
+    m_ProgressiveGeneration: 0
+    m_AlgorithmIndex: 0
+    m_AlgorithmCorridorPseudoLength: 4
+    m_NumberOfConnectionsPerSeconds: 50
 --- !u!4 &2140441598 stripped
 Transform:
   m_CorrespondingSourceObject: {fileID: 5766404762614852782, guid: 4846e1135283bf74b898928c6d2cafb2, type: 3}

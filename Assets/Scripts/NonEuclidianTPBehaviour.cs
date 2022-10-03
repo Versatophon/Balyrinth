@@ -23,9 +23,21 @@ public class NonEuclidianTPBehaviour : MonoBehaviour
     {
         //Debug.Log($"{pCollider} triggered");
 
+
         if (m_Player != null && pCollider.gameObject == m_Player.gameObject)
         {
-            m_Player.transform.position += m_TPOffset;
+            Vector3 lLocalPloayerMovingDirection = transform.TransformDirection(m_Player.getMovingDirection());
+
+            if( true || lLocalPloayerMovingDirection.z > 0)
+            {
+                m_Player.transform.position += m_TPOffset;
+                Debug.Log($"{m_Player} TP by {m_TPOffset}");
+            }
+            else
+            { 
+                Debug.Log($"{m_Player} No TP cause {lLocalPloayerMovingDirection}");
+            }
+
             //Debug.Log($"Triggered by {m_Player}");
         }
     }

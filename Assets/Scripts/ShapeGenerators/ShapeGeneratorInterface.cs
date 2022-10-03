@@ -65,4 +65,10 @@ public interface ShapeGeneratorInterface
         float lAngle = Mathf.Deg2Rad * (StartAngle + pDirection * StepOffset);
         return (new Vector3(Mathf.Cos(lAngle), 0, Mathf.Sin(lAngle)) * RoomsDistance * Balyrinth.Utilities.VIEW_SCALE);
     }
+
+    public int getRoomIndexNonEuclidian(Vector3 pPosition, out Vector3 pOffset)
+    {
+        pOffset = Vector3.zero;
+        return getRoomIndex(pPosition);
+    }
 }

@@ -10,9 +10,16 @@ public class RoomConnectionsBehaviour : MonoBehaviour, RoomConnectionInterface
     public List<GameObject> m_WallsObjects = new List<GameObject>();
     public List<GameObject> m_AntiwallsObjects = new List<GameObject>();
     public GameObject m_Ceiling = null;
+    public GameObject m_Floor = null;
+
+    public GameObject m_TPColliders = null;
 
     [SerializeField]
     private List<bool> m_ConnectionsActive = new List<bool>();
+
+    public bool m_Highlighted = false;
+    public Material m_StandardMaterial = null;
+    public Material m_HighligthedMaterial = null;
 
     // Start is called before the first frame update
     void Start()
@@ -22,6 +29,19 @@ public class RoomConnectionsBehaviour : MonoBehaviour, RoomConnectionInterface
     public void SetConnections(List<bool> pConnectionState)
     {
         m_ConnectionsActive = pConnectionState;
+    }
+
+    public void SetTPCollidersActive(bool pActive)
+    {
+        if (m_TPColliders != null )
+        {
+            m_TPColliders.SetActive(pActive);
+        }
+    }
+
+    public void SetHighlighted(bool pHighlighted)
+    {
+        m_Highlighted = pHighlighted;
     }
 
     public void resetVisibility()
@@ -53,7 +73,17 @@ public class RoomConnectionsBehaviour : MonoBehaviour, RoomConnectionInterface
         {
             m_Ceiling?.SetActive(lCeilingVisibility);
         }
-    }
+
+        if (m_Floor != null)
+        {
+            MeshRenderer lMeshRenderer = m_Floor.GetComponentInChildren<MeshRenderer>();
+            
+            if( lMeshRenderer != null && m_HighligthedMaterial != null && m_StandardMaterial != null)
+            {
+                lMeshRenderer.material = m_Highlighted ? m_HighligthedMaterial : m_StandardMaterial;
+            }
+        }
+     }
 
     // Update is called once per frame
     void Update()

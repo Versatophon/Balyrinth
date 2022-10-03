@@ -244,14 +244,130 @@ public class OctoShapeGenerator : ShapeGeneratorInterface
     {
         return new Vector3((pIndex % mWidth) * 2, 0, (pIndex / mWidth) * 2) * Balyrinth.Utilities.VIEW_SCALE;
     }
+
     public int getRoomIndex(Vector3 pPosition)
     {
         //TODO: Check this part
-        int lZPosition = (int)((pPosition.z + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
         int lXPosition = (int)((pPosition.x + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
+        int lZPosition = (int)((pPosition.z + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
 
-        lZPosition = Mathf.Clamp(lZPosition, 0, mHeight - 1);
+#if false
+        Vector2 lLocalPosition = new Vector2(pPosition.x - (lXPosition * 2 * Balyrinth.Utilities.VIEW_SCALE), pPosition.z - (lZPosition * 2 * Balyrinth.Utilities.VIEW_SCALE));
+
+        if (lLocalPosition.x < 0 && lLocalPosition.y < 0)
+        {
+            Vector2 lVectorToTest = new Vector2(-1, -1);
+            Vector2 lPointToTest = lVectorToTest * (Mathf.Sqrt(2f) / 2f) * Balyrinth.Utilities.VIEW_SCALE;
+            float lDotProduct = Vector2.Dot( (lLocalPosition - lPointToTest) , lVectorToTest);
+            //Debug.Log($"Dot {lDotProduct}");
+            lXPosition -= 1;
+            lZPosition -= 1;
+        }
+        else if (lLocalPosition.x > 0 && lLocalPosition.y < 0)
+        {
+            Vector2 lVectorToTest = new Vector2(1, -1);
+            Vector2 lPointToTest = lVectorToTest * (Mathf.Sqrt(2f) / 2f) * Balyrinth.Utilities.VIEW_SCALE;
+            float lDotProduct = Vector2.Dot((lLocalPosition - lPointToTest), lVectorToTest);
+            //Debug.Log($"Dot {lDotProduct}");
+            lXPosition += 1;
+            lZPosition -= 1;
+        }
+        else if (lLocalPosition.x > 0 && lLocalPosition.y > 0)
+        {
+            Vector2 lVectorToTest = new Vector2(1, 1);
+            Vector2 lPointToTest = lVectorToTest * (Mathf.Sqrt(2f) / 2f) * Balyrinth.Utilities.VIEW_SCALE;
+            float lDotProduct = Vector2.Dot((lLocalPosition - lPointToTest), lVectorToTest);
+            //Debug.Log($"Dot {lDotProduct}");
+            lXPosition += 1;
+            lZPosition += 1;
+        }
+        else if (lLocalPosition.x < 0 && lLocalPosition.y > 0)
+        {
+            Vector2 lVectorToTest = new Vector2(-1, 1);
+            Vector2 lPointToTest = lVectorToTest * (Mathf.Sqrt(2f) / 2f) * Balyrinth.Utilities.VIEW_SCALE;
+            float lDotProduct = Vector2.Dot((lLocalPosition - lPointToTest), lVectorToTest);
+            //Debug.Log($"Dot {lDotProduct}");
+            lXPosition -= 1;
+            lZPosition += 1;
+        }
+#endif
+
         lXPosition = Mathf.Clamp(lXPosition, 0, mWidth - 1);
+        lZPosition = Mathf.Clamp(lZPosition, 0, mHeight - 1);
+
+        //Debug.Log(lLocalPosition);
+
+        return (lZPosition * mWidth) + lXPosition;
+    }
+
+    //TRICK: this method has weird behaviour in order to manage non-euclidian space
+    public int getRoomIndexNonEuclidian(Vector3 pPosition, out Vector3 pOffset)
+    {
+        //TODO: Check this part
+        int lXPosition = (int)((pPosition.x + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
+        int lZPosition = (int)((pPosition.z + 1f * Balyrinth.Utilities.VIEW_SCALE) / (2f * Balyrinth.Utilities.VIEW_SCALE));
+
+        Vector2 lLocalPosition = new Vector2(pPosition.x - (lXPosition * 2 * Balyrinth.Utilities.VIEW_SCALE), pPosition.z - (lZPosition * 2 * Balyrinth.Utilities.VIEW_SCALE));
+
+        pOffset = Vector3.zero;
+
+        if (lLocalPosition.x < 0 && lLocalPosition.y < 0)
+        {
+            Vector2 lVectorToTest = new Vector2(-1, -1);
+            Vector2 lPointToTest = lVectorToTest * (Mathf.Sqrt(2f) / 2f) * Balyrinth.Utilities.VIEW_SCALE;
+            float lDotProduct = Vector2.Dot((lLocalPosition - lPointToTest), lVectorToTest);
+            //Debug.Log($"Dot {lDotProduct}");
+            if (lDotProduct > 0)
+            {
+                lXPosition -= 1;
+                lZPosition -= 1;
+                pOffset = -((ShapeGeneratorInterface)this).getDirectionOffset(7) / 2;
+            }
+        }
+        else if (lLocalPosition.x > 0 && lLocalPosition.y < 0)
+        {
+            Vector2 lVectorToTest = new Vector2(1, -1);
+            Vector2 lPointToTest = lVectorToTest * (Mathf.Sqrt(2f) / 2f) * Balyrinth.Utilities.VIEW_SCALE;
+            float lDotProduct = Vector2.Dot((lLocalPosition - lPointToTest), lVectorToTest);
+            //Debug.Log($"Dot {lDotProduct}");
+            if (lDotProduct > 0)
+            {
+                lXPosition += 1;
+                lZPosition -= 1;
+                pOffset = -((ShapeGeneratorInterface)this).getDirectionOffset(5) / 2;
+            }
+        }
+        else if (lLocalPosition.x > 0 && lLocalPosition.y > 0)
+        {
+            Vector2 lVectorToTest = new Vector2(1, 1);
+            Vector2 lPointToTest = lVectorToTest * (Mathf.Sqrt(2f) / 2f) * Balyrinth.Utilities.VIEW_SCALE;
+            float lDotProduct = Vector2.Dot((lLocalPosition - lPointToTest), lVectorToTest);
+            //Debug.Log($"Dot {lDotProduct}");
+            if (lDotProduct > 0)
+            {
+                lXPosition += 1;
+                lZPosition += 1;
+                pOffset = -((ShapeGeneratorInterface)this).getDirectionOffset(3) / 2;
+            }
+        }
+        else if (lLocalPosition.x < 0 && lLocalPosition.y > 0)
+        {
+            Vector2 lVectorToTest = new Vector2(-1, 1);
+            Vector2 lPointToTest = lVectorToTest * (Mathf.Sqrt(2f) / 2f) * Balyrinth.Utilities.VIEW_SCALE;
+            float lDotProduct = Vector2.Dot((lLocalPosition - lPointToTest), lVectorToTest);
+            //Debug.Log($"Dot {lDotProduct}");
+            if (lDotProduct > 0)
+            {
+                lXPosition -= 1;
+                lZPosition += 1;
+                pOffset = -((ShapeGeneratorInterface)this).getDirectionOffset(1) / 2;
+            }
+        }
+
+        lXPosition = Mathf.Clamp(lXPosition, 0, mWidth - 1);
+        lZPosition = Mathf.Clamp(lZPosition, 0, mHeight - 1);
+
+        //Debug.Log(lLocalPosition);
 
         return (lZPosition * mWidth) + lXPosition;
     }

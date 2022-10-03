@@ -39,6 +39,15 @@ public class RoomConnectionsAdvancedBehaviour : MonoBehaviour, RoomConnectionInt
     {
         m_ConnectionsActive = pConnectionState;
     }
+
+    public void SetTPCollidersActive(bool pActive)
+    {
+    }
+
+    public void SetHighlighted(bool pHighlighted)
+    {
+    }
+
     public void resetVisibility()
     {
         m_ConnectionsActive.ForEach(lValue => lValue = false);

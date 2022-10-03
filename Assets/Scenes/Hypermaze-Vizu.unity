@@ -230,9 +230,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_PlayerViewer: {fileID: 801002714}
-  m_SquareRoomPrefab: {fileID: 9062704152555679380, guid: 21e50a8fa53e33844adacebca19db60a, type: 3}
-  m_HexagonalRoomPrefab: {fileID: 8137593934016169205, guid: 4846e1135283bf74b898928c6d2cafb2, type: 3}
-  m_HypermazeRoomPrefab: {fileID: 0}
+  m_DisplayDebug: 0
+  m_LeftSpot: {fileID: 0}
+  m_RightSpot: {fileID: 0}
+  m_FirstDoorLeftSpot: {fileID: 0}
+  m_FirstDoorRightSpot: {fileID: 0}
+  m_MazeGeneratorManager:
+    m_Shape: 0
+    m_NumberOfColumns: 10
+    m_NumberOfRows: 10
+    m_NumberOfFloors: 10
+    m_ProgressiveGeneration: 0
+    m_AlgorithmIndex: 0
+    m_AlgorithmCorridorPseudoLength: 4
+    m_NumberOfConnectionsPerSeconds: 50
 --- !u!114 &287980698
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -246,23 +257,26 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MazeGeneratorManager:
-    m_Shape: 2
-    m_NumberOfColumns: 7
-    m_NumberOfRows: 7
-    m_NumberOfFloors: 7
+    m_Shape: 3
+    m_NumberOfColumns: 8
+    m_NumberOfRows: 8
+    m_NumberOfFloors: 8
     m_ProgressiveGeneration: 1
-    m_AlgorithmIndex: 3
+    m_AlgorithmIndex: 2
     m_AlgorithmCorridorPseudoLength: 3
     m_NumberOfConnectionsPerSeconds: 25
   m_SquareRoomPrefab: {fileID: 9062704152555679380, guid: 21e50a8fa53e33844adacebca19db60a, type: 3}
   m_HexagonalRoomPrefab: {fileID: 8137593934016169205, guid: 4846e1135283bf74b898928c6d2cafb2, type: 3}
+  m_OctogonalRoomPrefab: {fileID: 1668674170711958363, guid: 0d3bb21b7a6e8c742b23c4595f34f906, type: 3}
   m_HypermazeRoomPrefab: {fileID: 6210221088020938751, guid: 51a48a376bd208f4599498d51b1d3ece, type: 3}
   m_Player: {fileID: 0}
+  m_SpawnPointsOffset: {x: 0, y: 0, z: 0}
   m_Starting: {fileID: 906998757196776968, guid: aba178f809e6dbf418033c1cdd2b03bd, type: 3}
   m_Goal: {fileID: 6400858010210588776, guid: f90e8fadb6e11e742b9b31510cc6c04a, type: 3}
   m_RoomsVisibilityUpdater: {fileID: 287980697}
   m_MapCamAdapter: {fileID: 0}
   m_OrbitalManipulator: {fileID: 853970229}
+  m_LoopGeneration: 1
 --- !u!4 &287980699
 Transform:
   m_ObjectHideFlags: 0

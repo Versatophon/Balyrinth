@@ -168,7 +168,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: e7973d394a75ff3438269059bdd068bf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_UpdateInEditMode: 1
+  m_UpdateInEditMode: 0
   m_WallsObjects:
   - {fileID: 7966450127125456483}
   - {fileID: 7692040845865120246}
