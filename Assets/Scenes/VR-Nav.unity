@@ -205,9 +205,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_PlayerViewer: {fileID: 432998591}
-  m_SquareRoomPrefab: {fileID: 9062704152555679380, guid: 21e50a8fa53e33844adacebca19db60a, type: 3}
-  m_HexagonalRoomPrefab: {fileID: 8137593934016169205, guid: 4846e1135283bf74b898928c6d2cafb2, type: 3}
-  mObjectToInstantiate: {fileID: 0}
+  m_DisplayDebug: 0
+  m_LeftSpot: {fileID: 0}
+  m_RightSpot: {fileID: 0}
+  m_FirstDoorLeftSpot: {fileID: 0}
+  m_FirstDoorRightSpot: {fileID: 0}
+  m_MazeGeneratorManager:
+    m_Shape: 0
+    m_NumberOfColumns: 10
+    m_NumberOfRows: 10
+    m_NumberOfFloors: 10
+    m_ProgressiveGeneration: 0
+    m_AlgorithmIndex: 0
+    m_AlgorithmCorridorPseudoLength: 4
+    m_NumberOfConnectionsPerSeconds: 50
 --- !u!114 &55220070
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -221,20 +232,27 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_MazeGeneratorManager:
-    m_Shape: 1
+    m_Shape: 2
     m_NumberOfColumns: 5
     m_NumberOfRows: 5
+    m_NumberOfFloors: 10
     m_ProgressiveGeneration: 0
     m_AlgorithmIndex: 1
     m_AlgorithmCorridorPseudoLength: 4
     m_NumberOfConnectionsPerSeconds: 50
   m_SquareRoomPrefab: {fileID: 9062704152555679380, guid: 21e50a8fa53e33844adacebca19db60a, type: 3}
   m_HexagonalRoomPrefab: {fileID: 8137593934016169205, guid: 4846e1135283bf74b898928c6d2cafb2, type: 3}
+  m_OctogonalRoomSt0Prefab: {fileID: 1668674170711958363, guid: 0d3bb21b7a6e8c742b23c4595f34f906, type: 3}
+  m_OctogonalRoomSt1Prefab: {fileID: 1668674170711958363, guid: 63f9dfeae82cbe14984de54930d4fbf1, type: 3}
+  m_HypermazeRoomPrefab: {fileID: 6210221088020938751, guid: 58028444aa279a14ba11f7cb670a7e75, type: 3}
   m_Player: {fileID: 2049443401}
+  m_SpawnPointsOffset: {x: 0, y: 0, z: 0}
   m_Starting: {fileID: 906998757196776968, guid: aba178f809e6dbf418033c1cdd2b03bd, type: 3}
   m_Goal: {fileID: 6400858010210588776, guid: f90e8fadb6e11e742b9b31510cc6c04a, type: 3}
   m_RoomsVisibilityUpdater: {fileID: 55220069}
   m_MapCamAdapter: {fileID: 0}
+  m_OrbitalManipulator: {fileID: 0}
+  m_LoopGeneration: 0
 --- !u!4 &55220071
 Transform:
   m_ObjectHideFlags: 0
@@ -944,6 +962,7 @@ GameObject:
   - component: {fileID: 2049443407}
   - component: {fileID: 2049443406}
   - component: {fileID: 2049443408}
+  - component: {fileID: 2049443409}
   m_Layer: 0
   m_Name: XRRig
   m_TagString: Untagged
@@ -1167,3 +1186,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   mLabyrinthGenerator: {fileID: 55220070}
+--- !u!114 &2049443409
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2049443401}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 56f309cb3f74cc14186ed1999d0e6a0d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_LocalDirectionSeekingForGravity: {x: 0, y: -1, z: 0}
+  m_AccelerationConstant: 9.81
+  m_CalculateGravityVectorFromGroundSurface: 1

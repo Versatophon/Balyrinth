@@ -24,7 +24,8 @@ public class RoomsVisibilityUpdater : MonoBehaviour
     public GameObject m_FirstDoorLeftSpot = null;
     public GameObject m_FirstDoorRightSpot = null;
 
-    private GameObject mObjectToInstantiate;
+    private GameObject mObjectToInstantiateSt0;
+    private GameObject mObjectToInstantiateSt1;
 
     private bool m_FirstDoorLocated = false;
 
@@ -37,27 +38,58 @@ public class RoomsVisibilityUpdater : MonoBehaviour
     private GameObject m_MazeEnd = null;
     private Vector3 m_CPOffset = Vector3.zero;
 
-    public GameObject ObjectToInstantiate
+    public GameObject ObjectToInstantiateSt0
     {
         get
         { 
-            return mObjectToInstantiate;
+            return mObjectToInstantiateSt0;
         }
         
         set 
-        { 
-            mObjectToInstantiate = value;
-            foreach (GameObject lGO in m_Rooms)
+        {
+            mObjectToInstantiateSt0 = value;
+            foreach (GameObject lGO in m_RoomsSt0)
             {
                 GameObject.Destroy(lGO);
             }
-            m_Rooms.Clear();
+            m_RoomsSt0.Clear();
+
+            foreach (GameObject lGO in m_RoomsSt1)
+            {
+                GameObject.Destroy(lGO);
+            }
+            m_RoomsSt1.Clear();
+        }
+    }
+
+    public GameObject ObjectToInstantiateSt1
+    {
+        get
+        { 
+            return mObjectToInstantiateSt1;
+        }
+        
+        set 
+        {
+            mObjectToInstantiateSt1 = value;
+
+            foreach (GameObject lGO in m_RoomsSt1)
+            {
+                GameObject.Destroy(lGO);
+            }
+            m_RoomsSt1.Clear();
         }
     }
 
     public MazeGeneratorManager m_MazeGeneratorManager = null;
 
-    List<GameObject> m_Rooms = new List<GameObject>();
+    List<GameObject> m_RoomsSt0 = new List<GameObject>();
+    List<GameObject> m_RoomsSt1 = new List<GameObject>();
+
+    List<int> mVisibleRoomsSt0Indices = new List<int>();
+    List<int> mVisibleRoomsSt1Indices = new List<int>();
+    List<Vector3> mRoomSt0CorrectedPosition = new List<Vector3>();
+    List<Vector3> mRoomSt1CorrectedPosition = new List<Vector3>();
 
     // Start is called before the first frame update
     void Start()
@@ -82,8 +114,7 @@ public class RoomsVisibilityUpdater : MonoBehaviour
         */
     }
 
-    List<int> mVisibleRoomsIndices = new List<int>();
-    List<Vector3> mRoomCorrectedPosition = new List<Vector3>();
+
 
     // Update is called once per frame
     void Update()
@@ -94,20 +125,21 @@ public class RoomsVisibilityUpdater : MonoBehaviour
             int lNumDirections = lShapeGenerator.NumberOfDirections;
 
             //List<int> lVisibleRoomsIndices = new List<int>();
-            mVisibleRoomsIndices.Clear();
-            mRoomCorrectedPosition.Clear();
+            mVisibleRoomsSt0Indices.Clear();
+            mRoomSt0CorrectedPosition.Clear();
+
+            mVisibleRoomsSt1Indices.Clear();
+            mRoomSt1CorrectedPosition.Clear();
             //Debug.Log("Update");
 
             int lCurrentRoomIndex = ResolveCurrentRoom();
             if (lCurrentRoomIndex != -1)
             {
-                mVisibleRoomsIndices.Add(lCurrentRoomIndex);
-                mRoomCorrectedPosition.Add(lShapeGenerator.getRoomPosition(lCurrentRoomIndex) + mCumulatedOffset);
+                mVisibleRoomsSt0Indices.Add(lCurrentRoomIndex);
+                mRoomSt0CorrectedPosition.Add(lShapeGenerator.getRoomPosition(lCurrentRoomIndex) + mCumulatedOffset);
 
                 Vector3 lLeftViewVector = m_PlayerViewer.transform.TransformDirection(-Vector3.right + Vector3.forward);
-                //Vector3 lLeftViewVector = m_PlayerViewer.transform.TransformDirection(-Vector3.right);
                 Vector3 lRightViewVector = m_PlayerViewer.transform.TransformDirection(Vector3.right + Vector3.forward);
-                //Vector3 lRightViewVector = m_PlayerViewer.transform.TransformDirection(Vector3.right);
 
                 if(m_DisplayDebug && m_LeftSpot != null && m_RightSpot != null )
                 {
@@ -117,12 +149,22 @@ public class RoomsVisibilityUpdater : MonoBehaviour
 
                 m_FirstDoorLocated = false;
 
-                RecursiveSeeThrough(lCurrentRoomIndex, lShapeGenerator.getRoomPosition(lCurrentRoomIndex) + mCumulatedOffset, -1, lNumDirections, Mathf.Atan2(lRightViewVector.z, lRightViewVector.x), Mathf.Atan2(lLeftViewVector.z, lLeftViewVector.x));
+                bool lNeedToPerform2PassStencilRendering = m_MazeGeneratorManager.m_Shape == Balyrinth.Utilities.LabyShape.Octogonized;
+
+                RecursiveSeeThrough(lCurrentRoomIndex, lShapeGenerator.getRoomPosition(lCurrentRoomIndex) + mCumulatedOffset, -1, lNumDirections, -Mathf.PI * 0.99f, Mathf.PI * 0.99f, lNeedToPerform2PassStencilRendering, 0);
+                //RecursiveSeeThrough(lCurrentRoomIndex, lShapeGenerator.getRoomPosition(lCurrentRoomIndex) + mCumulatedOffset, -1, lNumDirections, Mathf.Atan2(lRightViewVector.z, lRightViewVector.x), Mathf.Atan2(lLeftViewVector.z, lLeftViewVector.x), lNeedToPerform2PassStencilRendering, 0);
             }
 
-            while ( m_Rooms.Count < mVisibleRoomsIndices.Count )
+            while ( m_RoomsSt0.Count < mVisibleRoomsSt0Indices.Count )
             {
-                m_Rooms.Add(GameObject.Instantiate(mObjectToInstantiate,
+                m_RoomsSt0.Add(GameObject.Instantiate(mObjectToInstantiateSt0,
+                  transform.TransformPoint(new Vector3(-10, -10, 0) * Balyrinth.Utilities.VIEW_SCALE),
+                  Quaternion.identity, transform));
+            }
+
+            while ( m_RoomsSt1.Count < mVisibleRoomsSt1Indices.Count )
+            {
+                m_RoomsSt1.Add(GameObject.Instantiate(mObjectToInstantiateSt1,
                   transform.TransformPoint(new Vector3(-10, -10, 0) * Balyrinth.Utilities.VIEW_SCALE),
                   Quaternion.identity, transform));
             }
@@ -133,35 +175,65 @@ public class RoomsVisibilityUpdater : MonoBehaviour
                 m_MazeEnd.SetActive(false);
             }
 
-            //TODO: need to compute all visu updates here
-            for (int i = 0; i < m_Rooms.Count; ++i)
+            for (int i = 0; i < m_RoomsSt0.Count; ++i)
             {
-                if (i < mVisibleRoomsIndices.Count)
+                if (i < mVisibleRoomsSt0Indices.Count)
                 {
-                    m_Rooms[i].SetActive(true);
+                    m_RoomsSt0[i].SetActive(true);
 
                     if (m_MazeBegin != null && m_MazeEnd != null)
                     {
-                        if(m_BeginIndex == mVisibleRoomsIndices[i])
+                        if(m_BeginIndex == mVisibleRoomsSt0Indices[i])
                         {
-                            m_MazeBegin.transform.position = mRoomCorrectedPosition[i] + m_CPOffset;
+                            m_MazeBegin.transform.position = mRoomSt0CorrectedPosition[i] + m_CPOffset;
                             m_MazeBegin.SetActive(true);
                         }
 
-                        if(m_EndIndex == mVisibleRoomsIndices[i])
+                        if(m_EndIndex == mVisibleRoomsSt0Indices[i])
                         {
-                            m_MazeEnd.transform.position = mRoomCorrectedPosition[i] + m_CPOffset;
+                            m_MazeEnd.transform.position = mRoomSt0CorrectedPosition[i] + m_CPOffset;
                             m_MazeEnd.SetActive(true);
                         }
                     }
 
                     //TODO: Check how it performs
-                    updateRoomVisibility(i);// /*mVisibleRoomsIndices[i],*/ m_Rooms[i], mRoomCorrectedPosition);
+                    updateRoomVisibility(i, 0);// /*mVisibleRoomsIndices[i],*/ m_Rooms[i], mRoomCorrectedPosition);
                 }
                 else
                 {
-                    m_Rooms[i].SetActive(false);
-                    m_Rooms[i].transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
+                    m_RoomsSt0[i].SetActive(false);
+                    m_RoomsSt0[i].transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
+                }
+            }
+
+            for (int i = 0; i < m_RoomsSt1.Count; ++i)
+            {
+                if (i < mVisibleRoomsSt1Indices.Count)
+                {
+                    m_RoomsSt1[i].SetActive(true);
+
+                    if (m_MazeBegin != null && m_MazeEnd != null)
+                    {
+                        if (m_BeginIndex == mVisibleRoomsSt1Indices[i])
+                        {
+                            m_MazeBegin.transform.position = mRoomSt1CorrectedPosition[i] + m_CPOffset;
+                            m_MazeBegin.SetActive(true);
+                        }
+
+                        if (m_EndIndex == mVisibleRoomsSt1Indices[i])
+                        {
+                            m_MazeEnd.transform.position = mRoomSt1CorrectedPosition[i] + m_CPOffset;
+                            m_MazeEnd.SetActive(true);
+                        }
+                    }
+
+                    //TODO: Check how it performs
+                    updateRoomVisibility(i, 1);// /*mVisibleRoomsIndices[i],*/ m_Rooms[i], mRoomCorrectedPosition);
+                }
+                else
+                {
+                    m_RoomsSt1[i].SetActive(false);
+                    m_RoomsSt1[i].transform.position = new Vector3(-10, 0, -10) * Balyrinth.Utilities.VIEW_SCALE;
                 }
             }
         }
@@ -184,7 +256,7 @@ public class RoomsVisibilityUpdater : MonoBehaviour
         m_CPOffset = pCPOffset;
     }
 
-    private void RecursiveSeeThrough(int pRoomIndex, Vector3 pComputedRoomPosition, int pFromDirection, int pNumDirections, float pMinAngleRadians, float pMaxAngleRadians)
+    private void RecursiveSeeThrough(int pRoomIndex, Vector3 pComputedRoomPosition, int pFromDirection, int pNumDirections, float pMinAngleRadians, float pMaxAngleRadians, bool pNeedToSelectStencilID, int pStencilID)
     {
         MazeGenerator lMazeGenerator = m_MazeGeneratorManager.GetMazeGenerator();
         ShapeGeneratorInterface lShapeGenerator = lMazeGenerator.mShapeGenerator;
@@ -232,23 +304,36 @@ public class RoomsVisibilityUpdater : MonoBehaviour
                         lMaximalLocalAngle = lTmpValue;
                     }
 #endif
+                  
                     bool lHasBeenAdded = false;
                     if (Balyrinth.Utilities.isMinimalAngleRadiansIsDirect(lMinimalLocalAngleRadians, lMaximalLocalAngleRadians))
                     {
                         if (Balyrinth.Utilities.isInSightRadians(pMinAngleRadians, pMaxAngleRadians, lMinimalLocalAngleRadians, lMaximalLocalAngleRadians, out lMinimalComputedAngleRadians, out lMaximalComputedAngleRadians))
                         {
-                            mVisibleRoomsIndices.Add(lNextCellIndex);
-                            mRoomCorrectedPosition.Add(pComputedRoomPosition + lShapeGenerator.getDirectionOffset(i));
+                            int lChoosenStencilID = pNeedToSelectStencilID ? ((i%2 == 1) ? 1 : 0) : pStencilID;
+                            if(lChoosenStencilID == 0)
+                            {
+                                mVisibleRoomsSt0Indices.Add(lNextCellIndex);
+                                mRoomSt0CorrectedPosition.Add(pComputedRoomPosition + lShapeGenerator.getDirectionOffset(i));
+                            }
+                            else if (lChoosenStencilID == 1)
+                            {
+                                mVisibleRoomsSt1Indices.Add(lNextCellIndex);
+                                mRoomSt1CorrectedPosition.Add(pComputedRoomPosition + lShapeGenerator.getDirectionOffset(i));
+                            }
+                            
 
-                            RecursiveSeeThrough(lNextCellIndex, pComputedRoomPosition + lShapeGenerator.getDirectionOffset(i), i, pNumDirections, lMinimalComputedAngleRadians, lMaximalComputedAngleRadians);
+                            RecursiveSeeThrough(lNextCellIndex, pComputedRoomPosition + lShapeGenerator.getDirectionOffset(i), i, pNumDirections, lMinimalComputedAngleRadians, lMaximalComputedAngleRadians, false, lChoosenStencilID);
                             lHasBeenAdded = true;
                         }
                     }
 
+
+                    //Adding rooms that are not visible but adjacent to the current player room
                     if( pFromDirection == -1 && !lHasBeenAdded )
                     {
-                        mVisibleRoomsIndices.Add(lNextCellIndex);
-                        mRoomCorrectedPosition.Add(pComputedRoomPosition + lShapeGenerator.getDirectionOffset(i));
+                        mVisibleRoomsSt0Indices.Add(lNextCellIndex);
+                        mRoomSt0CorrectedPosition.Add(pComputedRoomPosition + lShapeGenerator.getDirectionOffset(i));
                     }
 
                 }
@@ -356,27 +441,49 @@ public class RoomsVisibilityUpdater : MonoBehaviour
         return lRoomIndex;
     }
 
-    void updateRoomVisibility(int pVisibleIndex)//(int  pRoomIndex, GameObject pRoom)
+    void updateRoomVisibility(int pVisibleIndex, int pStencilID = 0)//(int  pRoomIndex, GameObject pRoom)
     {
         MazeGenerator lMazeGenerator = m_MazeGeneratorManager.GetMazeGenerator();
 
-        GameObject lFoundRoum = m_Rooms[pVisibleIndex];
+        GameObject lFoundRoum = pStencilID == 0 ? m_RoomsSt0[pVisibleIndex] : m_RoomsSt1[pVisibleIndex];
         RoomConnectionInterface lRoom = lFoundRoum.GetComponent<RoomConnectionInterface>();
         lRoom.resetVisibility();
-        lRoom.SetTPCollidersActive(pVisibleIndex == 0);
-        lRoom.SetHighlighted(pVisibleIndex == 0);
+        //TODO: check if this method is still mandatory
+        lRoom.SetTPCollidersActive(pVisibleIndex == 0 && pStencilID == 0);
+        lRoom.SetHighlighted(pVisibleIndex == 0 && pStencilID == 0);
         //Node lNode = m_MazeGenerator.getNode(pRoomIndex);
-        lFoundRoum.transform.position = mRoomCorrectedPosition[pVisibleIndex];//m_MazeGenerator.getPosition(pRoomIndex);
-
-        List<bool> lConnections = new List<bool>();
-        for (int i = 0; i < lMazeGenerator.mShapeGenerator.NumberOfDirections; ++i)
+        if(pStencilID == 0)
         {
-            lConnections.Add(lMazeGenerator.areConnected(mVisibleRoomsIndices[pVisibleIndex], lMazeGenerator.mShapeGenerator.getNextCellIndex(mVisibleRoomsIndices[pVisibleIndex], i)));
-            //lRoom.m_ConnectionsActive[i] = ;
+            lFoundRoum.transform.position = mRoomSt0CorrectedPosition[pVisibleIndex];//m_MazeGenerator.getPosition(pRoomIndex);
+        
+
+            List<bool> lConnections = new List<bool>();
+            for (int i = 0; i < lMazeGenerator.mShapeGenerator.NumberOfDirections; ++i)
+            {
+                lConnections.Add(lMazeGenerator.areConnected(mVisibleRoomsSt0Indices[pVisibleIndex], lMazeGenerator.mShapeGenerator.getNextCellIndex(mVisibleRoomsSt0Indices[pVisibleIndex], i)));
+                //lRoom.m_ConnectionsActive[i] = ;
+            }
+            
+            lRoom.SetConnections(lConnections);
+
+        }
+        else if (pStencilID == 1)
+        {
+            lFoundRoum.transform.position = mRoomSt1CorrectedPosition[pVisibleIndex];//m_MazeGenerator.getPosition(pRoomIndex);
+
+
+            List<bool> lConnections = new List<bool>();
+            for (int i = 0; i < lMazeGenerator.mShapeGenerator.NumberOfDirections; ++i)
+            {
+                lConnections.Add(lMazeGenerator.areConnected(mVisibleRoomsSt1Indices[pVisibleIndex], lMazeGenerator.mShapeGenerator.getNextCellIndex(mVisibleRoomsSt1Indices[pVisibleIndex], i)));
+                //lRoom.m_ConnectionsActive[i] = ;
+            }
+
+            lRoom.SetConnections(lConnections);
+
         }
 
-        lRoom.SetConnections(lConnections);
-      
+
         lRoom.Updatevisibility();
     }
 }

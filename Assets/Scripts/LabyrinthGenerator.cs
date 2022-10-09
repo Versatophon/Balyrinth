@@ -22,7 +22,8 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
     public GameObject m_SquareRoomPrefab = null;
     public GameObject m_HexagonalRoomPrefab = null;
-    public GameObject m_OctogonalRoomPrefab = null;
+    public GameObject m_OctogonalRoomSt0Prefab = null;
+    public GameObject m_OctogonalRoomSt1Prefab = null;
     public GameObject m_HypermazeRoomPrefab = null;
 
     public ArtificialGravity m_Player = null;
@@ -66,16 +67,20 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
         switch (m_MazeGeneratorManager.m_Shape)
         {
             case Balyrinth.Utilities.LabyShape.Rectangle:
-                m_RoomsVisibilityUpdater.ObjectToInstantiate = m_SquareRoomPrefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiateSt0 = m_SquareRoomPrefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiateSt1 = null;
                 break;
             case Balyrinth.Utilities.LabyShape.HoneyComb:
-                m_RoomsVisibilityUpdater.ObjectToInstantiate = m_HexagonalRoomPrefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiateSt0 = m_HexagonalRoomPrefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiateSt1 = null;
                 break;
             case Balyrinth.Utilities.LabyShape.Octogonized:
-                m_RoomsVisibilityUpdater.ObjectToInstantiate = m_OctogonalRoomPrefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiateSt0 = m_OctogonalRoomSt0Prefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiateSt1 = m_OctogonalRoomSt1Prefab;
                 break;
             case Balyrinth.Utilities.LabyShape.Hypermaze:
-                m_RoomsVisibilityUpdater.ObjectToInstantiate = m_HypermazeRoomPrefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiateSt0 = m_HypermazeRoomPrefab;
+                m_RoomsVisibilityUpdater.ObjectToInstantiateSt1 = null;
                 break;
             case Balyrinth.Utilities.LabyShape.Sphere:
                 mNeedToCompute = false;
