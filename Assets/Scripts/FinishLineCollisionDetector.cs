@@ -5,7 +5,7 @@ using UnityEngine;
 public class FinishLineCollisionDetector : MonoBehaviour
 {
 
-    public LabyrinthGenerator mLabyrinthGenerator = null;
+    public LabyrinthGenerator m_LabyrinthGenerator = null;
 
     // Start is called before the first frame update
     void Start()
@@ -27,7 +27,7 @@ public class FinishLineCollisionDetector : MonoBehaviour
             Debug.Log("Congratulations - You reached the finish line !");
 
             //Reload new labyrinth
-            mLabyrinthGenerator?.InitiateGeneration();
+            m_LabyrinthGenerator?.InitiateGeneration();
         }
     }
 }

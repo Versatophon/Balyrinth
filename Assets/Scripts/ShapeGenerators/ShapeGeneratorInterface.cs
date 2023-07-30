@@ -34,6 +34,11 @@ public interface ShapeGeneratorInterface
     float DoorsExtermitiesDistance { get; }
     float RoomsDistance { get; }
 
+    float getDirectionAngle(int pDirection)
+    {
+        return Mathf.Repeat(StartAngle + pDirection * StepOffset, 360f);
+    }
+
     public int getOppositeDirection(int pDirection)
     {
         return (pDirection + (NumberOfDirections / 2)) % NumberOfDirections;
@@ -41,7 +46,7 @@ public interface ShapeGeneratorInterface
 
     public Vector3 getLeftDoorSidePosition(int pDirection)
     {
-        float lleftAngle = Mathf.Deg2Rad * (StartAngle + pDirection * StepOffset + LeftOffset);
+        float lleftAngle = Mathf.Deg2Rad * (getDirectionAngle(pDirection) + LeftOffset);
         return (new Vector3(Mathf.Cos(lleftAngle), 0, Mathf.Sin(lleftAngle)) * DoorsExtermitiesDistance * Balyrinth.Utilities.VIEW_SCALE);
     }
 
@@ -62,7 +67,7 @@ public interface ShapeGeneratorInterface
 
     public Vector3 getDirectionOffset(int pDirection)
     {
-        float lAngle = Mathf.Deg2Rad * (StartAngle + pDirection * StepOffset);
+        float lAngle = Mathf.Deg2Rad * getDirectionAngle(pDirection);
         return (new Vector3(Mathf.Cos(lAngle), 0, Mathf.Sin(lAngle)) * RoomsDistance * Balyrinth.Utilities.VIEW_SCALE);
     }
 

@@ -314,12 +314,6 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
             }
 
         }
-
-
-
-
-
-        
     }
 
     public void GenerationDone()
