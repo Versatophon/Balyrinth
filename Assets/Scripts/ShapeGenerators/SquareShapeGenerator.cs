@@ -12,11 +12,6 @@ public class SquareShapeGenerator:ShapeGeneratorInterface
     public float DoorsExtermitiesDistance { get { return 1.414215f; } }
     public float RoomsDistance { get { return 2; } }
 
-    //public int GetNumberOfDirections()
-    //{
-    //    return 4;
-    //}
-
     public int getNextCellIndex(int pCurrentcellIndex, int pDirection)
     {
         //West,North,East,South,
@@ -60,12 +55,6 @@ public class SquareShapeGenerator:ShapeGeneratorInterface
         mHeight = pHeight;
     }
 
-#if false
-    public static int getIndex(int pX, int pY, int pWidth, int pHeight)
-    {
-        return (pY * pWidth) + pX;
-    }
-#endif
     int mWidth = 10;
     int mHeight = 10;
 
@@ -85,7 +74,6 @@ public class SquareShapeGenerator:ShapeGeneratorInterface
                 lLaby.mNodes.Add(lNode);
             }
         }
-
 
         for (int j = 0; j < mHeight; ++j)
         {
@@ -137,11 +125,6 @@ public class SquareShapeGenerator:ShapeGeneratorInterface
         return lLaby;
     }
 
-    //public int getOppositeDirection(int pDirection)
-    //{
-    //    return (pDirection+GetNumberOfDirections()/2)%GetNumberOfDirections();
-    //}
-
     public Vector3 getRoomPosition(int pIndex)
     {
         return new Vector3((pIndex % mWidth) * 2, 0, (pIndex / mWidth) * 2) * Balyrinth.Utilities.VIEW_SCALE;
@@ -158,37 +141,6 @@ public class SquareShapeGenerator:ShapeGeneratorInterface
 
         return (lZPosition * mWidth) + lXPosition;
     }
-
-
-#if false
-    public void getDoorExtremities(int pRoomIndex, int pDirection, out Vector3 pLeft, out Vector3 pRight)
-    {
-        Vector3 lCenter = getRoomPosition(pRoomIndex);
-        switch (pDirection) 
-        {
-            case 0://WEST
-                pLeft = lCenter + new Vector3(-1, 0, -1) * Balyrinth.Utilities.VIEW_SCALE;
-                pRight = lCenter + new Vector3(-1, 0, 1) * Balyrinth.Utilities.VIEW_SCALE;
-                break;
-            case 1://NORTH
-                pLeft = lCenter + new Vector3(-1, 0, 1) * Balyrinth.Utilities.VIEW_SCALE;
-                pRight = lCenter + new Vector3(1, 0, 1) * Balyrinth.Utilities.VIEW_SCALE;
-                break;
-            case 2://EAST
-                pLeft = lCenter + new Vector3(1, 0, 1) * Balyrinth.Utilities.VIEW_SCALE;
-                pRight = lCenter + new Vector3(1, 0, -1) * Balyrinth.Utilities.VIEW_SCALE;
-                break;
-            case 3://SOUTH
-                pLeft = lCenter + new Vector3(1, 0, -1) * Balyrinth.Utilities.VIEW_SCALE;
-                pRight = lCenter + new Vector3(-1, 0, -1) * Balyrinth.Utilities.VIEW_SCALE;
-                break;
-            default:
-                pLeft = lCenter;
-                pRight = lCenter;
-                break;
-        }
-    }
-#endif
 
     public Utilities.LabyShape getLabyShape()
     {

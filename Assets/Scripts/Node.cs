@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 
+//Class that represent a graph node
 public class Node
 {
     public List<Node> mPotentialNeighbours = new List<Node>();
@@ -10,18 +11,19 @@ public class Node
 
     public Node()
     {
-
     }
 
     public void propagateColor(int pColorToPropagate)
     {
+        if (mColor == pColorToPropagate)
+        {
+            return;
+        }
+
         mColor = pColorToPropagate;
         foreach (Node lNeighbour in mConnectedNeighbours)
         {
-            if (lNeighbour.mColor != mColor)
-            {
-                lNeighbour.propagateColor(pColorToPropagate);
-            }
+            lNeighbour.propagateColor(pColorToPropagate);
         }
     }
 }

@@ -42,11 +42,6 @@ public class AdaptViewportToContent : MonoBehaviour
 
     public void UpdateViewport()
     {
-        //if (m_Camera == null)
-        //{
-        //    GetCamera();
-        //}
-
         //Adapt to ratio
         float lCamRatio = m_Camera.Value.pixelRect.size.x / m_Camera.Value.pixelRect.size.y;
 
@@ -69,8 +64,6 @@ public class AdaptViewportToContent : MonoBehaviour
 
         m_Camera.Value.nearClipPlane = m_zMin;
         m_Camera.Value.farClipPlane = m_zMax;
-
-        //setOrtho(m_Camera, m_xMin, m_xMax, m_zMin, m_zMax, m_yMin, m_yMax);
     }
 
     static void setOrtho(Camera pCamera, float pLeft, float pRight, float pBottom, float pTop, float pNear, float pFar)

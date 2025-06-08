@@ -93,6 +93,7 @@ public class MazeGeneratorManager
     {
         int lNumDirections = mMazeGenerator.mShapeGenerator.NumberOfDirections;
         bool[] lReturnArray = new bool[lNumDirections];
+
         //TODO: use Linq
         for (int i = 0; i < lNumDirections; ++i)
         {
@@ -170,7 +171,7 @@ public class MazeGeneratorManager
 
         if (!m_ProgressiveGeneration)
         {
-            mMazeGenerator.generate(m_AlgorithmIndex, m_NumberOfColumns, m_NumberOfRows, m_AlgorithmCorridorPseudoLength);
+            mMazeGenerator.generate(m_AlgorithmIndex, m_AlgorithmCorridorPseudoLength);
 
             mInternalRepresentation.findMaximumPathExtremities(out mStartingNode, out mEndingNode);
             mInternalRepresentation.findMaximumCompletePath(mStartingNode, mEndingNode, out mLabyrinthPath);
@@ -220,11 +221,11 @@ public class MazeGeneratorManager
                 }
                 else if (m_AlgorithmIndex == 2)
                 {
-                    mIsGenerationPerforming = !mMazeGenerator.generateStep3(ref lNodeIndex1, ref lNodeIndex2/*, m_NumberOfColumns, m_NumberOfRows*/);
+                    mIsGenerationPerforming = !mMazeGenerator.generateStep3(ref lNodeIndex1, ref lNodeIndex2);
                 }
                 else if (m_AlgorithmIndex == 3)
                 {
-                    mIsGenerationPerforming = !mMazeGenerator.generateStep4(ref lNodeIndex1, ref lNodeIndex2/*, m_NumberOfColumns, m_NumberOfRows*/, m_AlgorithmCorridorPseudoLength);
+                    mIsGenerationPerforming = !mMazeGenerator.generateStep4(ref lNodeIndex1, ref lNodeIndex2, m_AlgorithmCorridorPseudoLength);
                 }
 
                 lModifiedNodeIndices.Add(lNodeIndex1);

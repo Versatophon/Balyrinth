@@ -13,7 +13,7 @@ OcclusionCullingSettings:
 --- !u!104 &2
 RenderSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 9
+  serializedVersion: 10
   m_Fog: 0
   m_FogColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   m_FogMode: 3
@@ -38,13 +38,12 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.18028378, g: 0.22571412, b: 0.30692285, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
   m_ObjectHideFlags: 0
-  serializedVersion: 12
-  m_GIWorkflowMode: 1
+  serializedVersion: 13
+  m_BakeOnSceneLoad: 0
   m_GISettings:
     serializedVersion: 2
     m_BounceScale: 1
@@ -67,9 +66,6 @@ LightmapSettings:
     m_LightmapParameters: {fileID: 0}
     m_LightmapsBakeMode: 1
     m_TextureCompression: 1
-    m_FinalGather: 0
-    m_FinalGatherFiltering: 1
-    m_FinalGatherRayCount: 256
     m_ReflectionCompression: 2
     m_MixedBakeMode: 2
     m_BakeBackend: 1
@@ -97,14 +93,14 @@ LightmapSettings:
     m_ExportTrainingData: 0
     m_TrainingDataDestination: TrainingData
     m_LightProbeSampleCountMultiplier: 4
-  m_LightingDataAsset: {fileID: 0}
+  m_LightingDataAsset: {fileID: 20201, guid: 0000000000000000f000000000000000, type: 0}
   m_LightingSettings: {fileID: 0}
 --- !u!196 &4
 NavMeshSettings:
   serializedVersion: 2
   m_ObjectHideFlags: 0
   m_BuildSettings:
-    serializedVersion: 2
+    serializedVersion: 3
     agentTypeID: 0
     agentRadius: 0.5
     agentHeight: 2
@@ -117,7 +113,7 @@ NavMeshSettings:
     cellSize: 0.16666667
     manualTileSize: 0
     tileSize: 256
-    accuratePlacement: 0
+    buildHeightMesh: 0
     maxJobWorkers: 0
     preserveTilesOutsideBounds: 0
     debug:
@@ -153,9 +149,8 @@ Light:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 731575736}
   m_Enabled: 1
-  serializedVersion: 10
+  serializedVersion: 11
   m_Type: 1
-  m_Shape: 0
   m_Color: {r: 1, g: 0.95686275, b: 0.8392157, a: 1}
   m_Intensity: 0.2
   m_Range: 10
@@ -205,8 +200,12 @@ Light:
   m_BoundingSphereOverride: {x: 0, y: 0, z: 0, w: 0}
   m_UseBoundingSphereOverride: 0
   m_UseViewFrustumForShadowCasterCull: 1
+  m_ForceVisible: 0
   m_ShadowRadius: 0
   m_ShadowAngle: 0
+  m_LightUnit: 1
+  m_LuxAtDistance: 1
+  m_EnableSpotReflector: 1
 --- !u!4 &731575738
 Transform:
   m_ObjectHideFlags: 0
@@ -214,13 +213,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 731575736}
+  serializedVersion: 2
   m_LocalRotation: {x: 0.40821788, y: -0.23456968, z: 0.10938163, w: 0.8754261}
   m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
 --- !u!1 &1191477853
 GameObject:
@@ -252,6 +251,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 01614664b831546d2ae94a42149d80ac, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  m_SendPointerHoverToParent: 1
   m_MoveRepeatDelay: 0.5
   m_MoveRepeatRate: 0.1
   m_XRTrackingOrigin: {fileID: 0}
@@ -268,6 +268,8 @@ MonoBehaviour:
   m_TrackedDeviceOrientationAction: {fileID: 7970375526676320489, guid: ca9f5fa95ffab41fb9a615ab714db018, type: 3}
   m_DeselectOnBackgroundClick: 1
   m_PointerBehavior: 0
+  m_CursorLockBehavior: 0
+  m_ScrollDeltaPerTick: 6
 --- !u!114 &1191477855
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -290,13 +292,13 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1191477853}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 4.869, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1476745466
 GameObject:
@@ -329,6 +331,20 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_PlayerViewer: {fileID: 29646337}
+  m_DisplayDebug: 0
+  m_LeftSpot: {fileID: 0}
+  m_RightSpot: {fileID: 0}
+  m_FirstDoorLeftSpot: {fileID: 0}
+  m_FirstDoorRightSpot: {fileID: 0}
+  m_MazeGeneratorManager:
+    m_Shape: 0
+    m_NumberOfColumns: 10
+    m_NumberOfRows: 10
+    m_NumberOfFloors: 10
+    m_ProgressiveGeneration: 0
+    m_AlgorithmIndex: 0
+    m_AlgorithmCorridorPseudoLength: 4
+    m_NumberOfConnectionsPerSeconds: 50
 --- !u!114 &1476745468
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -352,14 +368,17 @@ MonoBehaviour:
     m_NumberOfConnectionsPerSeconds: 25
   m_SquareRoomPrefab: {fileID: 9062704152555679380, guid: 21e50a8fa53e33844adacebca19db60a, type: 3}
   m_HexagonalRoomPrefab: {fileID: 8137593934016169205, guid: 4846e1135283bf74b898928c6d2cafb2, type: 3}
-  m_OctogonalRoomPrefab: {fileID: 1668674170711958363, guid: 0d3bb21b7a6e8c742b23c4595f34f906, type: 3}
+  m_OctogonalRoomSt0Prefab: {fileID: 0}
+  m_OctogonalRoomSt1Prefab: {fileID: 0}
   m_HypermazeRoomPrefab: {fileID: 6210221088020938751, guid: 58028444aa279a14ba11f7cb670a7e75, type: 3}
   m_Player: {fileID: 29646337}
+  m_SpawnPointsOffset: {x: 0, y: 0, z: 0}
   m_Starting: {fileID: 906998757196776968, guid: aba178f809e6dbf418033c1cdd2b03bd, type: 3}
   m_Goal: {fileID: 6400858010210588776, guid: f90e8fadb6e11e742b9b31510cc6c04a, type: 3}
   m_RoomsVisibilityUpdater: {fileID: 1476745467}
   m_MapCamAdapter: {fileID: 0}
   m_OrbitalManipulator: {fileID: 0}
+  m_LoopGeneration: 0
 --- !u!4 &1476745469
 Transform:
   m_ObjectHideFlags: 0
@@ -367,20 +386,20 @@ Transform:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1476745466}
+  serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1001 &977032595929114105
 PrefabInstance:
   m_ObjectHideFlags: 0
   serializedVersion: 2
   m_Modification:
-    serializedVersion: 2
+    serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
     - target: {fileID: 977032595949845496, guid: ed2e7626aea421e49bac45d8d194d5db, type: 3}
@@ -519,9 +538,15 @@ PrefabInstance:
       propertyPath: mLabyrinthGenerator
       value: 
       objectReference: {fileID: 1476745468}
+    - target: {fileID: 977032596530264190, guid: ed2e7626aea421e49bac45d8d194d5db, type: 3}
+      propertyPath: field of view
+      value: 102.4
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 0}
+    m_RemovedGameObjects: []
     m_AddedGameObjects: []
+    m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: ed2e7626aea421e49bac45d8d194d5db, type: 3}
 --- !u!114 &977032595929114106 stripped
 MonoBehaviour:
@@ -534,3 +559,11 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0d4e167e665b6bf46841516936e39c12, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!1660057539 &9223372036854775807
+SceneRoots:
+  m_ObjectHideFlags: 0
+  m_Roots:
+  - {fileID: 977032595929114105}
+  - {fileID: 731575738}
+  - {fileID: 1476745469}
+  - {fileID: 1191477856}

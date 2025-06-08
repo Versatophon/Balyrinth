@@ -7,17 +7,6 @@ using UnityEngine;
 
 public class MazeGenerator
 {
-#if false
-    public enum CardinalDirection
-    {
-        West,
-        North,
-        East,
-        South,
-        Last,
-    }
-#endif
-
     System.Random mRandomGenerator = new System.Random();
 
     int mCurrentColor = 0;
@@ -33,7 +22,7 @@ public class MazeGenerator
     Node mLastConnectedNode = null;
     int mNumConnectionsPerformed = 0;
 
-    int mCurrentDirection = 0;// CardinalDirection.East;
+    int mCurrentDirection = 0;
 
     public MazeGenerator(Labyrinth pLaby, Balyrinth.Utilities.LabyShape pShape, int pWidth, int pHeight, int pDepth = 1)
     {
@@ -59,7 +48,6 @@ public class MazeGenerator
         mStillConnectablesNodes = new List<Node>(pLaby.mNodes);
 
         mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.NumberOfDirections);
-        //mCurrentDirection = mRandomGenerator.Next(4);
     }
 
     public Node getNode(int pIndex)
@@ -81,7 +69,7 @@ public class MazeGenerator
         return mLabyrinth.mNodes[pRoomIndex1].mConnectedNeighbours.Contains(mLabyrinth.mNodes[pRoomIndex2]);
     }
 
-    public void generate(int pAlgorithmIndex, int pWidth, int pHeight, int pCorridorPseudoLength)
+    public void generate(int pAlgorithmIndex, int pCorridorPseudoLength)
     {
         bool lIsDone = false;
 
@@ -102,10 +90,10 @@ public class MazeGenerator
                     lIsDone = generateStep2(ref lDummyIndex1, ref lDummyIndex2);
                     break;
                 case 2:
-                    lIsDone = generateStep3(ref lDummyIndex1, ref lDummyIndex2/*, pWidth, pHeight*/);
+                    lIsDone = generateStep3(ref lDummyIndex1, ref lDummyIndex2);
                     break;
                 case 3:
-                    lIsDone = generateStep4(ref lDummyIndex1, ref lDummyIndex2/*, pWidth, pHeight*/, pCorridorPseudoLength);
+                    lIsDone = generateStep4(ref lDummyIndex1, ref lDummyIndex2, pCorridorPseudoLength);
                     break;
             }
         }
@@ -127,8 +115,6 @@ public class MazeGenerator
         while (pNodeIndex1 == -1)
         {
             mPotentialConnections.Clear();
-
-            //Debug.Log("Connectables Count " + mStillConnectablesNodes.Count);
 
             int lIndex = mRandomGenerator.Next(mStillConnectablesNodes.Count);
 
@@ -182,16 +168,8 @@ public class MazeGenerator
                     else
                     {
                         int lColorToPropagate = Math.Min(lNode.mColor, lPotentialNode.mColor);
-                        
-                        if ( lColorToPropagate == lPotentialNode.mColor )
-                        {
-                            lNode.propagateColor(lColorToPropagate);
-                        }
-                        else
-                        {
-                            lPotentialNode.propagateColor(lColorToPropagate);
-                        }
-                        
+                        lNode.propagateColor(lColorToPropagate);
+                        lPotentialNode.propagateColor(lColorToPropagate);
                     }
                 }
 
@@ -224,8 +202,6 @@ public class MazeGenerator
 
     public bool generateStep2(ref int pNodeIndex1, ref int pNodeIndex2)
     {
-        //bool lIsDone = false;
-
         pNodeIndex1 = -1;
         pNodeIndex2 = -1;
 
@@ -256,7 +232,10 @@ public class MazeGenerator
             {
                 mStillConnectablesNodes.Remove(mLastConnectedNode);
                 //find another candidate
-                mLastConnectedNode = mStillConnectablesNodes[mRandomGenerator.Next(mStillConnectablesNodes.Count)];
+                if(mStillConnectablesNodes.Count > 0)
+                {
+                    mLastConnectedNode = mStillConnectablesNodes[mRandomGenerator.Next(mStillConnectablesNodes.Count)];
+                }
             }
             else
             {
@@ -306,48 +285,6 @@ public class MazeGenerator
                 return mLabyrinth.mNodes[lNextNodeIndex];
             }
         }
-
-#if false
-        switch (pDirection)
-        {
-            case CardinalDirection.West:
-                if((pCurrentNode.mIndex%pLabyrinthWidth) != 0 && pCurrentNode.mPotentialNeighbours.Contains(mLabyrinth.mNodes[pCurrentNode.mIndex-1]))
-                {
-                    if(mLabyrinth.mNodes[pCurrentNode.mIndex - 1].mColor != pCurrentNode.mColor)
-                    {
-                        return mLabyrinth.mNodes[pCurrentNode.mIndex - 1];
-                    }
-                }
-                break;
-            case CardinalDirection.North:
-                if ((pCurrentNode.mIndex / pLabyrinthWidth) < pLabyrinthHeight-1 && pCurrentNode.mPotentialNeighbours.Contains(mLabyrinth.mNodes[pCurrentNode.mIndex + pLabyrinthWidth]))
-                {
-                    if (mLabyrinth.mNodes[pCurrentNode.mIndex + pLabyrinthWidth].mColor != pCurrentNode.mColor)
-                    {
-                        return mLabyrinth.mNodes[pCurrentNode.mIndex + pLabyrinthWidth];
-                    }
-                }
-                break;
-            case CardinalDirection.East:
-                if ((pCurrentNode.mIndex % pLabyrinthWidth) != pLabyrinthWidth-1 && pCurrentNode.mPotentialNeighbours.Contains(mLabyrinth.mNodes[pCurrentNode.mIndex + 1]))
-                {
-                    if (mLabyrinth.mNodes[pCurrentNode.mIndex + 1].mColor != pCurrentNode.mColor)
-                    {
-                        return mLabyrinth.mNodes[pCurrentNode.mIndex + 1];
-                    }
-                }
-                break;
-            case CardinalDirection.South:
-                if ((pCurrentNode.mIndex / pLabyrinthWidth) > 0 && pCurrentNode.mPotentialNeighbours.Contains(mLabyrinth.mNodes[pCurrentNode.mIndex - pLabyrinthWidth]))
-                {
-                    if (mLabyrinth.mNodes[pCurrentNode.mIndex - pLabyrinthWidth].mColor != pCurrentNode.mColor)
-                    {
-                        return mLabyrinth.mNodes[pCurrentNode.mIndex - pLabyrinthWidth];
-                    }
-                }
-                break;
-        }
-#endif
 
         return null;
     }
@@ -434,8 +371,6 @@ public class MazeGenerator
 
     public bool generateStep4(ref int pNodeIndex1, ref int pNodeIndex2/*, int pLabyrinthWidth, int pLabyrinthHeight*/, int m_AlgorithmCorridorPseudoLength)
     {
-        //bool lIsDone = false;
-
         pNodeIndex1 = -1;
         pNodeIndex2 = -1;
 
@@ -451,7 +386,6 @@ public class MazeGenerator
 
         while (!lConnectionPerformed)
         {
-
             mPotentialConnections.Clear();
 
             foreach (Node lPotentialNode in mLastConnectedNode.mPotentialNeighbours)
@@ -483,8 +417,6 @@ public class MazeGenerator
                     mCurrentDirection = mRandomGenerator.Next(mShapeGenerator.NumberOfDirections);
                     lNewConnectedNode = getConnectableNodeFromDirection(mLastConnectedNode, mCurrentDirection/*, pLabyrinthWidth, pLabyrinthHeight*/);
                 }
-
-                //Node lNewConnectedNode = mPotentialConnections[mRandomGenerator.Next(mPotentialConnections.Count)];
 
                 pNodeIndex1 = mLastConnectedNode.mIndex;
                 pNodeIndex2 = lNewConnectedNode.mIndex;

@@ -6,6 +6,7 @@ public class FinishLineCollisionDetector : MonoBehaviour
 {
 
     public LabyrinthGenerator m_LabyrinthGenerator = null;
+    public ChatbotControl m_ChatbotControl = null;
 
     // Start is called before the first frame update
     void Start()
@@ -28,6 +29,7 @@ public class FinishLineCollisionDetector : MonoBehaviour
 
             //Reload new labyrinth
             m_LabyrinthGenerator?.InitiateGeneration();
+            m_ChatbotControl?.StopAnimations();
         }
     }
 }

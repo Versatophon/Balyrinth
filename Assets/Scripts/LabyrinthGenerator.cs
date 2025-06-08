@@ -7,19 +7,6 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 {
     public MazeGeneratorManager m_MazeGeneratorManager;
 
-    //public Balyrinth.Utilities.LabyShape m_Shape = Balyrinth.Utilities.LabyShape.Rectangle;
-    //
-    //public int m_NumberOfColumns = 10;
-    //public int m_NumberOfRows = 10;
-    //
-    //public bool m_ProgressiveGeneration = false;
-    //
-    //public int m_AlgorithmIndex = 0;
-    //
-    //public int m_AlgorithmCorridorPseudoLength = 4;
-    //
-    //public float m_NumberOfConnectionsPerSeconds = 50f;
-
     public GameObject m_SquareRoomPrefab = null;
     public GameObject m_HexagonalRoomPrefab = null;
     public GameObject m_OctogonalRoomSt0Prefab = null;
@@ -41,11 +28,6 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
     GameObject m_StartCP = null;
     GameObject m_GoalCP = null;
-
-    //Labyrinth mInternalRepresentation;
-    //MazeGenerator mMazeGenerator = null;
-
-    //float m_TimeCounter = 0f;
 
     List<GameObject> m_Rooms = new List<GameObject>();
 
@@ -133,25 +115,6 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
         }
     }
 
-    void updateRoomVisibility(int pRoomIndex, GameObject pRoom)
-    {
-        RoomConnectionInterface lRoom = pRoom.GetComponent<RoomConnectionInterface>();
-        lRoom.resetVisibility();
-
-
-        //Node lNode = mMazeGenerator.getNode(pRoomIndex);
-        pRoom.transform.position = m_MazeGeneratorManager.GetObjectPosition(pRoomIndex);
-
-        //for (int i = 0; i < mMazeGenerator.mShapeGenerator.GetNumberOfDirections(); ++i)
-        //{
-        //    lRoom.m_ConnectionsActive[i] = mMazeGenerator.areConnected(pRoomIndex, mMazeGenerator.mShapeGenerator.getNextCellIndex(pRoomIndex, i));
-        //}
-
-        lRoom.SetConnections(m_MazeGeneratorManager.GetConnectedDirections(pRoomIndex).ToList());
-
-        lRoom.Updatevisibility();
-    }
-
     // Update is called once per frame
     void Update()
     {
@@ -192,6 +155,8 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
     public void respawnInputCB(UnityEngine.InputSystem.InputAction.CallbackContext pContext)
     {
+
+        //TODO: Find a way to resolve as needed
 #if false//VR
         if (pContext.phase == UnityEngine.InputSystem.InputActionPhase.Performed)
         {
@@ -209,16 +174,12 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
         {
             m_RoomsVisibilityUpdater.Init();
             m_Player.Teleport(m_MazeGeneratorManager.GetObjectPosition(m_MazeGeneratorManager.GetStartingNodeIndex()) + new Vector3(0, (UnityEngine.XR.Management.XRGeneralSettings.Instance?.Manager?.activeLoader == null ? 1.5f : 0), 0), Vector3.down);
-            //m_Player.transform.position = m_MazeGeneratorManager.GetObjectPosition(m_MazeGeneratorManager.GetStartingNodeIndex()) + new Vector3(0, (UnityEngine.XR.Management.XRGeneralSettings.Instance?.Manager?.activeLoader == null ? 1.5f : 0), 0);
-            //m_Player.transform.rotation = Quaternion.identity;
             m_RoomsVisibilityUpdater.SetCheckpoints(m_MazeGeneratorManager.GetStartingNodeIndex(), m_StartCP, m_MazeGeneratorManager.GetEndingNodeIndex(), m_GoalCP, m_SpawnPointsOffset);
         }
     }
 
     public void InitiateGeneration()
     {
-        //Debug.Log("Regenerate Maze !");
-
         if (mNeedToCompute)
         {
             return;
@@ -228,17 +189,7 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
 
         SelectPrefabToInstantiate();
 
-        //SpawnPlayer();
-
-
         m_MazeGeneratorManager.InitiateGeneration();
-
-        //if (!m_ProgressiveGeneration)
-        //{
-        //    mMazeGenerator.generate(m_AlgorithmIndex, m_NumberOfColumns, m_NumberOfRows, m_AlgorithmCorridorPseudoLength);
-        //    mNeedToCompute = false;
-        //}
-
 
         //TODO: Find another way to handle this
         m_RoomsVisibilityUpdater.m_MazeGeneratorManager = m_MazeGeneratorManager;
@@ -343,47 +294,4 @@ public class LabyrinthGenerator : MonoBehaviour, MazeGenerationListener
             InitiateGeneration();
         }
     }
-
-    //private void UpdateGeneration()
-    //{
-    //    m_TimeCounter += Time.deltaTime;
-    //
-    //    float lTimeBetweenUpdates = (1f / m_NumberOfConnectionsPerSeconds);
-    //
-    //    if (m_ProgressiveGeneration && mNeedToCompute)
-    //    {
-    //        while (m_TimeCounter > lTimeBetweenUpdates && mNeedToCompute)
-    //        {
-    //            m_TimeCounter -= lTimeBetweenUpdates;
-    //
-    //            int lNodeIndex1 = -1;
-    //            int lNodeIndex2 = -1;
-    //
-    //            if (m_AlgorithmIndex == 0)
-    //            {
-    //                mNeedToCompute = !mMazeGenerator.generateStep(ref lNodeIndex1, ref lNodeIndex2);
-    //            }
-    //            else if (m_AlgorithmIndex == 1)
-    //            {
-    //                mNeedToCompute = !mMazeGenerator.generateStep2(ref lNodeIndex1, ref lNodeIndex2);
-    //            }
-    //            else if (m_AlgorithmIndex == 2)
-    //            {
-    //                mNeedToCompute = !mMazeGenerator.generateStep3(ref lNodeIndex1, ref lNodeIndex2, m_NumberOfColumns, m_NumberOfRows);
-    //            }
-    //            else if (m_AlgorithmIndex == 3)
-    //            {
-    //                mNeedToCompute = !mMazeGenerator.generateStep4(ref lNodeIndex1, ref lNodeIndex2, m_NumberOfColumns, m_NumberOfRows, m_AlgorithmCorridorPseudoLength);
-    //            }
-    //
-    //            //updateRoomVisibility(lNodeIndex1, m_Room1);
-    //            //updateRoomVisibility(lNodeIndex2, m_Room2);
-    //        }
-    //
-    //        if (!mNeedToCompute)
-    //        {
-    //            mMazeGenerator = null;
-    //        }
-    //    }
-    //}
 }
